@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+
+:root {
+  color-scheme: light;
+}
+
+body {
+  @apply bg-ink-50 text-ink-900 antialiased;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.prose-content {
+  @apply text-ink-700 leading-relaxed;
+}
+.prose-content p {
+  @apply mb-4;
+}
+.prose-content ul {
+  @apply mb-4 list-disc pl-6 space-y-1;
+}
+.prose-content ol {
+  @apply mb-4 list-decimal pl-6 space-y-1;
+}
+.prose-content h2 {
+  @apply text-xl font-semibold text-ink-900 mt-6 mb-3;
+}
+.prose-content h3 {
+  @apply text-lg font-semibold text-ink-900 mt-5 mb-2;
+}
+.prose-content a {
+  @apply text-brand-600 underline underline-offset-2;
+}
+.prose-content strong {
+  @apply font-semibold text-ink-900;
+}
+
+.ProseMirror {
+  @apply min-h-[160px] px-3 py-2 text-sm text-ink-800 focus:outline-none;
+}
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  @apply text-ink-400 float-left h-0 pointer-events-none;
+}
