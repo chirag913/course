@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { cn } from "@/lib/utils";
+import { cn, formatDuration } from "@/lib/utils";
 import { Check } from "lucide-react";
 import type { SectionWithLessons } from "@/types/database";
 
@@ -49,7 +49,12 @@ export function CurriculumSidebar({
                   >
                     {isCompleted ? <Check className="h-3.5 w-3.5" /> : pad(lIdx + 1)}
                   </span>
-                  <span className="line-clamp-1">{lesson.title}</span>
+                  <span className="line-clamp-1 flex-1">{lesson.title}</span>
+                  {lesson.duration_seconds > 0 && (
+                    <span className="shrink-0 font-mono text-[10px] text-ink-500">
+                      {formatDuration(lesson.duration_seconds)}
+                    </span>
+                  )}
                 </Link>
               );
             })}

@@ -17,6 +17,18 @@ body {
   @apply bg-brand-400 text-ink-50;
 }
 
+/* Visible keyboard focus ring everywhere, without adding a ring to mouse
+   clicks — matches the restrained gold-accent system instead of the
+   browser's default blue outline. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[tabindex]:focus-visible {
+  @apply outline-none ring-2 ring-brand-400 ring-offset-2 ring-offset-ink-50;
+}
+
 .prose-content {
   @apply text-ink-700 leading-relaxed;
 }
@@ -41,6 +53,15 @@ body {
 .prose-content strong {
   @apply font-semibold text-ink-900;
 }
+/* Callout treatment for blockquotes — the presentation layer for things
+   like "Chirag's Take" or "Real World" asides. Content is written by the
+   admin in the rich text editor's Quote button; this only styles it. */
+.prose-content blockquote {
+  @apply my-6 border-l-2 border-brand-400 bg-ink-100 py-3 pl-5 pr-4 font-serif italic text-ink-800;
+}
+.prose-content blockquote p {
+  @apply mb-0;
+}
 
 .ProseMirror {
   @apply min-h-[160px] px-3 py-2 text-sm text-ink-800 focus:outline-none;
@@ -48,6 +69,12 @@ body {
 .ProseMirror p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);
   @apply text-ink-500 float-left h-0 pointer-events-none;
+}
+.ProseMirror blockquote {
+  @apply my-2 border-l-2 border-brand-400 bg-ink-200 py-2 pl-4 pr-3 font-serif italic text-ink-700;
+}
+.ProseMirror blockquote p {
+  @apply mb-0;
 }
 
 /* Small uppercase mono "eyebrow" label — the recurring section marker

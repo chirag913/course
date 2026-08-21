@@ -5,9 +5,11 @@ import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/auth";
 import { SiteHeader } from "@/components/site-header";
+import { SiteFooter } from "@/components/site-footer";
 import { CheckoutBox } from "@/components/checkout/checkout-box";
-import { CheckCircle2, PlayCircle, FileText, Star } from "lucide-react";
-import { formatDuration } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { CheckCircle2, PlayCircle, FileText, Star, X, ArrowRight } from "lucide-react";
+import { formatDuration, formatPrice } from "@/lib/utils";
 import type {
   Course,
   CourseSection,
@@ -111,7 +113,7 @@ export default async function CourseSalesPage({ params }: Props) {
   }
 
   return (
-    <div className="min-h-screen bg-ink-50">
+    <div id="top" className="min-h-screen scroll-smooth bg-ink-50">
       <SiteHeader />
 
       {/* Hero */}
@@ -123,6 +125,10 @@ export default async function CourseSalesPage({ params }: Props) {
               {course.title}
             </h1>
             {course.subtitle && <p className="mt-4 max-w-xl text-lg text-ink-500">{course.subtitle}</p>}
+
+            <p className="mt-4 font-mono text-xs uppercase tracking-wide text-ink-500">
+              {totalLessons} Lessons · {formatDuration(totalDuration)} · Lifetime Access
+            </p>
 
             <div className="relative mt-8 aspect-video w-full overflow-hidden rounded-md border border-ink-300 bg-ink-100">
               {course.thumbnail_url ? (
@@ -217,6 +223,47 @@ export default async function CourseSalesPage({ params }: Props) {
               </div>
             </section>
 
+            <section>
+              <p className="eyebrow">Is this for you?</p>
+              <div className="mt-5 grid gap-8 border-t border-ink-300 pt-5 sm:grid-cols-2">
+                <div>
+                  <h3 className="font-display text-sm font-semibold uppercase tracking-wide text-ink-900">
+                    This is for you if
+                  </h3>
+                  <ul className="mt-3 space-y-2.5">
+                    {[
+                      "You want structure instead of scattered information.",
+                      "You want practical knowledge, not theory.",
+                      "You're willing to actually implement it.",
+                      "You want to learn from someone who has operated real businesses.",
+                    ].map((point) => (
+                      <li key={point} className="flex items-start gap-2.5 text-sm text-ink-700">
+                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-success" />
+                        {point}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <h3 className="font-display text-sm font-semibold uppercase tracking-wide text-ink-900">
+                    Not for you if
+                  </h3>
+                  <ul className="mt-3 space-y-2.5">
+                    {[
+                      "You're looking for guaranteed income.",
+                      "You're looking for a magic product or shortcut.",
+                      "You expect the course to do the work for you.",
+                    ].map((point) => (
+                      <li key={point} className="flex items-start gap-2.5 text-sm text-ink-700">
+                        <X className="mt-0.5 h-4 w-4 shrink-0 text-danger" />
+                        {point}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </section>
+
             {testimonials.length > 0 && (
               <section>
                 <p className="eyebrow">What students say</p>
@@ -297,6 +344,26 @@ export default async function CourseSalesPage({ params }: Props) {
           </div>
         </div>
       </main>
+
+      {!isEnrolled && (
+        <section className="border-t border-ink-300">
+          <div className="mx-auto max-w-6xl px-4 py-20 text-center sm:px-6">
+            <h2 className="font-display text-3xl font-bold tracking-tight text-ink-900 sm:text-4xl">
+              {course.title}
+            </h2>
+            <p className="mt-3 font-display text-2xl font-bold text-ink-900">
+              {formatPrice(course.price, course.currency)}
+            </p>
+            <a href="#top">
+              <Button size="lg" className="mt-6">
+                Get Instant Access <ArrowRight className="h-4 w-4" />
+              </Button>
+            </a>
+          </div>
+        </section>
+      )}
+
+      <SiteFooter />
     </div>
   );
 }

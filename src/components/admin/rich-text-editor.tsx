@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { cn } from "@/lib/utils";
-import { Bold, Italic, List, ListOrdered, Heading2 } from "lucide-react";
+import { Bold, Italic, List, ListOrdered, Heading2, Quote } from "lucide-react";
 
 export function RichTextEditor({
   name,
@@ -41,6 +41,7 @@ export function RichTextEditor({
     { icon: Heading2, label: "Heading", active: editor.isActive("heading", { level: 2 }), run: () => editor.chain().focus().toggleHeading({ level: 2 }).run() },
     { icon: List, label: "Bullet list", active: editor.isActive("bulletList"), run: () => editor.chain().focus().toggleBulletList().run() },
     { icon: ListOrdered, label: "Numbered list", active: editor.isActive("orderedList"), run: () => editor.chain().focus().toggleOrderedList().run() },
+    { icon: Quote, label: "Callout quote", active: editor.isActive("blockquote"), run: () => editor.chain().focus().toggleBlockquote().run() },
   ];
 
   return (

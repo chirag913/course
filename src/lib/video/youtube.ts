@@ -77,7 +77,12 @@ export const youtubeProvider: VideoProviderAdapter = {
       rel: "0",
       modestbranding: "1",
       enablejsapi: "1",
-      origin: typeof window !== "undefined" ? window.location.origin : "",
+      // Using the env var (identical on server and client) rather than
+      // window.location.origin avoids an SSR/hydration mismatch — the
+      // iframe's src would otherwise differ between the server render
+      // (no window) and the client render, forcing a wasted reload of the
+      // embed right after mount.
+      origin: process.env.NEXT_PUBLIC_SITE_URL ?? "",
     });
     if (options?.autoplay) params.set("autoplay", "1");
     if (options?.startSeconds) params.set("start", String(Math.floor(options.startSeconds)));

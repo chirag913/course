@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/site-header";
+import { SiteFooter } from "@/components/site-footer";
 import { VideoPlayer } from "@/components/video/video-player";
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/lib/utils";
@@ -72,6 +73,7 @@ export default async function LessonPreviewPage({ params }: Props) {
           </Link>
         </div>
       </main>
+      <SiteFooter />
     </div>
   );
 }
