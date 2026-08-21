@@ -48,6 +48,9 @@ export function SiteFooter() {
             <p className="font-display text-lg font-bold tracking-tight text-ink-900">
               Chirag Sharma<span className="text-brand-400">.</span>
             </p>
+            <p className="mt-1 font-mono text-[10px] uppercase tracking-wide text-ink-500">
+              A unit of {siteConfig.legalEntityName}
+            </p>
             <p className="mt-3 max-w-[220px] text-sm text-ink-500">
               Practical courses based on real-world experience building and operating businesses.
             </p>

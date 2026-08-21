@@ -19,12 +19,8 @@ export const siteConfig = {
   // guessed address.
   supportEmail: process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "[SUPPORT EMAIL TO BE CONFIRMED]",
 
-  // No registered company name, GSTIN, or business address exists in the
-  // project. Defaulting to the individual creator name is accurate (that's
-  // what's actually published) — it is NOT a claim of a specific legal
-  // entity type (sole proprietorship, Pvt Ltd, etc.), which must be
-  // confirmed separately if required for the Razorpay submission.
-  legalEntityName: process.env.NEXT_PUBLIC_LEGAL_ENTITY_NAME || "Chirag Sharma",
+  // Registered operating entity, provided directly by Chirag.
+  legalEntityName: process.env.NEXT_PUBLIC_LEGAL_ENTITY_NAME || "Chirag Digital Private Limited",
   businessAddress: process.env.NEXT_PUBLIC_BUSINESS_ADDRESS || null,
   gstin: process.env.NEXT_PUBLIC_GSTIN || null,
 
