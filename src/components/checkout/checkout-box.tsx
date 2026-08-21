@@ -7,6 +7,7 @@ import { formatPrice } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CheckCircle2, Tag } from "lucide-react";
+import { siteConfig } from "@/lib/site-config";
 import type { Course } from "@/types/database";
 
 declare global {
@@ -57,7 +58,7 @@ export function CheckoutBox({
         key: data.keyId,
         amount: data.amount,
         currency: data.currency,
-        name: "Learn",
+        name: siteConfig.platformName,
         description: data.courseName,
         order_id: data.razorpayOrderId,
         handler: async (response: {
@@ -151,6 +152,22 @@ export function CheckoutBox({
             </button>
           </p>
         </>
+      )}
+
+      {!isEnrolled && (
+        <p className="mt-4 border-t border-ink-300 pt-4 text-center text-xs text-ink-500">
+          <a href="/refund-policy" className="hover:text-ink-900 hover:underline">
+            Refund Policy
+          </a>
+          {" · "}
+          <a href="/terms" className="hover:text-ink-900 hover:underline">
+            Terms
+          </a>
+          {" · "}
+          <a href="/privacy" className="hover:text-ink-900 hover:underline">
+            Privacy
+          </a>
+        </p>
       )}
     </div>
   );

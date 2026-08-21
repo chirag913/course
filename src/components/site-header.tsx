@@ -21,6 +21,18 @@ export async function SiteHeader() {
           >
             Courses
           </Link>
+          <Link
+            href="/about"
+            className="hidden whitespace-nowrap text-xs font-semibold uppercase tracking-widest2 text-ink-600 transition-colors hover:text-ink-900 sm:inline"
+          >
+            About
+          </Link>
+          <Link
+            href="/contact"
+            className="hidden whitespace-nowrap text-xs font-semibold uppercase tracking-widest2 text-ink-600 transition-colors hover:text-ink-900 sm:inline"
+          >
+            Contact
+          </Link>
           {user ? (
             <>
               <Link
