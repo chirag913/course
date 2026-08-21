@@ -70,6 +70,22 @@ Reload the app and you'll see `/admin` instead of `/dashboard` in the header.
 4. Set `NEXT_PUBLIC_SITE_URL` to your production domain.
 5. Update the Razorpay webhook URL to point at the production domain, and update the Supabase Auth **Redirect URLs** (Authentication → URL Configuration) to include `https://<your-domain>/auth/callback`.
 
+## 9. Before Razorpay website verification
+
+The legal/info pages (`/about`, `/contact`, `/terms`, `/privacy`, `/refund-policy`,
+`/shipping-policy`) are live, but a few real business details don't exist anywhere in this
+project and were deliberately left as bracketed placeholders rather than invented. Set these env
+vars (locally and in Vercel) before submitting the site for verification:
+
+- `NEXT_PUBLIC_SUPPORT_EMAIL` — shown on `/contact`, `/terms`, `/privacy`, `/refund-policy`
+- `NEXT_PUBLIC_REFUND_WINDOW_DAYS` — a number (e.g. `7`); shown on `/refund-policy`, `/terms`, and the checkout box. Pick a real number you're prepared to honor — it renders identically everywhere it appears
+- `NEXT_PUBLIC_LEGAL_ENTITY_NAME` — optional, defaults to "Chirag Sharma" if unset. Only change this if you're operating under a registered business name instead
+- `NEXT_PUBLIC_BUSINESS_ADDRESS` — optional, used as the jurisdiction city in the Terms' governing-law clause
+
+Until these are set, the corresponding pages will visibly show `[SUPPORT EMAIL TO BE CONFIRMED]` /
+`[REFUND WINDOW TO BE CONFIRMED]` / `[JURISDICTION CITY TO BE CONFIRMED]` — don't submit for
+verification with those still showing.
+
 ## Notes
 
 - Supabase Auth's default email templates work out of the box for signup confirmation and password reset; customize them under **Authentication → Email Templates** if you want your own branding.
