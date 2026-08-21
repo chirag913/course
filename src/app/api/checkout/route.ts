@@ -103,8 +103,16 @@ export async function POST(request: Request) {
   const razorpayOrder = await razorpay.orders.create({
     amount: finalAmount,
     currency: course.currency,
-    receipt: `course_${courseId}_${Date.now()}`,
+    // Razorpay caps receipt at 56 chars — course_id/user_id are already
+    // captured in `notes` below, so this just needs to be unique.
+    receipt: `rcpt_${Date.now()}`,
     notes: { course_id: courseId, user_id: user.id },
+    // Without this, a successful card payment sits in "authorized" status
+    // until the account's dashboard-level capture settings (or a manual
+    // capture call) promote it to "captured" — and neither our fast-path
+    // verify nor the webhook fire for "authorized". Forcing capture here
+    // makes checkout behave the same regardless of account defaults.
+    payment_capture: true,
   });
 
   const { data: order, error: orderError } = await supabase
