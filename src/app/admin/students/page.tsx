@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { formatDate } from "@/lib/utils";
 import { Users } from "lucide-react";
@@ -41,17 +40,17 @@ export default async function AdminStudentsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-ink-900">Students</h1>
+      <h1 className="font-display text-2xl font-bold tracking-tight text-ink-900">Students</h1>
 
       <div className="mt-6">
         {students.length > 0 ? (
-          <Card className="overflow-hidden">
-            <div className="divide-y divide-ink-100">
+          <div className="border-t border-ink-300">
+            <div className="divide-y divide-ink-300">
               {students.map((student) => (
                 <Link
                   key={student.id}
                   href={`/admin/students/${student.id}`}
-                  className="flex items-center justify-between gap-4 p-5 hover:bg-ink-50"
+                  className="flex items-center justify-between gap-4 py-4 transition-colors hover:bg-ink-100/60"
                 >
                   <div>
                     <p className="font-medium text-ink-900">{student.fullName ?? "Unnamed"}</p>
@@ -62,13 +61,13 @@ export default async function AdminStudentsPage() {
                       {student.courseCount} course{student.courseCount !== 1 ? "s" : ""}
                     </p>
                     {student.latestPurchase && (
-                      <p className="text-ink-400">Since {formatDate(student.latestPurchase)}</p>
+                      <p className="font-mono text-xs text-ink-500">Since {formatDate(student.latestPurchase)}</p>
                     )}
                   </div>
                 </Link>
               ))}
             </div>
-          </Card>
+          </div>
         ) : (
           <EmptyState icon={Users} title="No students yet" description="Students will show up here once they enroll in a course." />
         )}

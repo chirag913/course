@@ -19,11 +19,11 @@ export function CouponsManager({ coupons }: { coupons: Coupon[] }) {
 
   return (
     <div>
-      <h2 className="text-lg font-semibold text-ink-900">Coupons</h2>
+      <p className="eyebrow">Coupons</p>
 
       <div className="mt-4">
         {coupons.length > 0 ? (
-          <div className="divide-y divide-ink-100 rounded-xl border border-ink-100 bg-white">
+          <div className="divide-y divide-ink-300 border border-ink-300">
             {coupons.map((coupon) => (
               <div key={coupon.id} className="flex flex-wrap items-center justify-between gap-3 p-4">
                 <div>
@@ -63,7 +63,7 @@ export function CouponsManager({ coupons }: { coupons: Coupon[] }) {
                         router.refresh();
                       })
                     }
-                    className="rounded p-1.5 text-ink-300 hover:bg-red-50 hover:text-red-500"
+                    className="rounded p-1.5 text-ink-500 hover:bg-danger/10 hover:text-danger"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
@@ -90,7 +90,7 @@ export function CouponsManager({ coupons }: { coupons: Coupon[] }) {
           })
         }
         id="coupon-form"
-        className="mt-5 grid gap-3 rounded-xl border border-dashed border-ink-200 p-4 sm:grid-cols-2 lg:grid-cols-4"
+        className="mt-5 grid gap-3 border border-dashed border-ink-300 p-4 sm:grid-cols-2 lg:grid-cols-4"
       >
         <div>
           <Label htmlFor="code">Code</Label>
@@ -103,7 +103,7 @@ export function CouponsManager({ coupons }: { coupons: Coupon[] }) {
             name="discount_type"
             value={discountType}
             onChange={(e) => setDiscountType(e.target.value as "percentage" | "fixed")}
-            className="h-10 w-full rounded-lg border border-ink-200 bg-white px-3 text-sm text-ink-900 outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
+            className="h-10 w-full rounded-md border border-ink-300 bg-ink-100 px-3 text-sm text-ink-900 outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-400/20"
           >
             <option value="percentage">Percentage</option>
             <option value="fixed">Fixed amount (₹)</option>
@@ -126,7 +126,7 @@ export function CouponsManager({ coupons }: { coupons: Coupon[] }) {
             Create coupon
           </Button>
         </div>
-        {error && <p className="text-sm text-red-600 sm:col-span-2 lg:col-span-4">{error}</p>}
+        {error && <p className="text-sm text-danger sm:col-span-2 lg:col-span-4">{error}</p>}
       </form>
     </div>
   );

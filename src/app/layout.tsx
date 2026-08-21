@@ -3,8 +3,8 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "Learn — Course Platform",
-    template: "%s | Learn",
+    default: "Chirag Sharma",
+    template: "%s | Chirag Sharma",
   },
   description: "Practical courses that get you results.",
 };

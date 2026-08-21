@@ -7,7 +7,7 @@ export default async function ProfilePage() {
 
   return (
     <div className="max-w-lg">
-      <h1 className="text-2xl font-bold text-ink-900">Profile</h1>
+      <h1 className="font-display text-2xl font-bold tracking-tight text-ink-900">Profile</h1>
       <Card className="mt-6">
         <CardContent className="p-6">
           <ProfileForm email={user.email ?? ""} fullName={user.profile.full_name ?? ""} />

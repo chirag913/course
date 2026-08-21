@@ -58,13 +58,13 @@ export function SectionCard({
     <div
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition }}
-      className={`rounded-xl border border-ink-100 bg-white ${isDragging ? "z-10 shadow-card" : ""}`}
+      className={`border border-ink-300 bg-ink-100 ${isDragging ? "z-10" : ""}`}
     >
-      <div className="flex items-center gap-2 border-b border-ink-100 px-3 py-2.5">
+      <div className="flex items-center gap-2 border-b border-ink-300 px-3 py-2.5">
         <button
           {...attributes}
           {...listeners}
-          className="cursor-grab touch-none text-ink-300 hover:text-ink-500 active:cursor-grabbing"
+          className="cursor-grab touch-none text-ink-500 hover:text-ink-800 active:cursor-grabbing"
         >
           <GripVertical className="h-4 w-4" />
         </button>
@@ -82,7 +82,7 @@ export function SectionCard({
                 onRename(titleDraft);
                 setEditingTitle(false);
               }}
-              className="rounded p-1.5 text-emerald-600 hover:bg-emerald-50"
+              className="rounded p-1.5 text-success hover:bg-success/10"
             >
               <Check className="h-4 w-4" />
             </button>
@@ -91,29 +91,29 @@ export function SectionCard({
                 setTitleDraft(section.title);
                 setEditingTitle(false);
               }}
-              className="rounded p-1.5 text-ink-400 hover:bg-ink-100"
+              className="rounded p-1.5 text-ink-500 hover:bg-ink-200"
             >
               <X className="h-4 w-4" />
             </button>
           </>
         ) : (
           <>
-            <h3 className="flex-1 text-sm font-semibold text-ink-900">{section.title}</h3>
-            <button onClick={() => setEditingTitle(true)} className="rounded p-1.5 text-ink-400 hover:bg-ink-100">
+            <h3 className="flex-1 font-display text-sm font-semibold text-ink-900">{section.title}</h3>
+            <button onClick={() => setEditingTitle(true)} className="rounded p-1.5 text-ink-500 hover:bg-ink-200">
               <Pencil className="h-3.5 w-3.5" />
             </button>
             {confirmingDelete ? (
               <>
                 <span className="text-xs text-ink-500">Delete section?</span>
-                <button onClick={onDelete} className="rounded bg-red-600 px-2 py-1 text-xs font-medium text-white">
+                <button onClick={onDelete} className="rounded bg-danger px-2 py-1 text-xs font-medium text-ink-50">
                   Confirm
                 </button>
-                <button onClick={() => setConfirmingDelete(false)} className="rounded p-1.5 text-ink-400 hover:bg-ink-100">
+                <button onClick={() => setConfirmingDelete(false)} className="rounded p-1.5 text-ink-500 hover:bg-ink-200">
                   <X className="h-3.5 w-3.5" />
                 </button>
               </>
             ) : (
-              <button onClick={() => setConfirmingDelete(true)} className="rounded p-1.5 text-ink-400 hover:bg-red-50 hover:text-red-500">
+              <button onClick={() => setConfirmingDelete(true)} className="rounded p-1.5 text-ink-500 hover:bg-danger/10 hover:text-danger">
                 <Trash2 className="h-3.5 w-3.5" />
               </button>
             )}

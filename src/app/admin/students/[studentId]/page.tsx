@@ -3,7 +3,6 @@ import Link from "next/link";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { getCourseProgress } from "@/lib/progress";
-import { Card } from "@/components/ui/card";
 import { ArrowLeft } from "lucide-react";
 import type { Course } from "@/types/database";
 
@@ -35,21 +34,21 @@ export default async function StudentDetailPage({ params }: Props) {
         <ArrowLeft className="h-3.5 w-3.5" /> All students
       </Link>
 
-      <h1 className="mt-2 text-2xl font-bold text-ink-900">{profile.full_name ?? "Unnamed"}</h1>
+      <h1 className="mt-2 font-display text-2xl font-bold tracking-tight text-ink-900">{profile.full_name ?? "Unnamed"}</h1>
       <p className="text-sm text-ink-500">{userResult.user.email}</p>
 
-      <h2 className="mt-8 text-sm font-semibold uppercase tracking-wide text-ink-400">Courses</h2>
-      <Card className="mt-3 overflow-hidden">
-        <div className="divide-y divide-ink-100">
-          {courses.length === 0 && <p className="p-5 text-sm text-ink-500">Not enrolled in any courses yet.</p>}
+      <p className="eyebrow mt-8">Courses</p>
+      <div className="mt-3 border-t border-ink-300">
+        <div className="divide-y divide-ink-300">
+          {courses.length === 0 && <p className="py-4 text-sm text-ink-500">Not enrolled in any courses yet.</p>}
           {courses.map((course, i) => (
-            <div key={course.id} className="flex items-center justify-between p-5">
+            <div key={course.id} className="flex items-center justify-between py-4">
               <p className="font-medium text-ink-900">{course.title}</p>
-              <span className="text-sm font-medium text-ink-500">{progressList[i]!.percent}% complete</span>
+              <span className="font-mono text-sm text-ink-500">{progressList[i]!.percent}% COMPLETE</span>
             </div>
           ))}
         </div>
-      </Card>
+      </div>
     </div>
   );
 }

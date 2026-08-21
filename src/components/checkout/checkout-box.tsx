@@ -80,7 +80,7 @@ export function CheckoutBox({
         modal: {
           ondismiss: () => setLoading(false),
         },
-        theme: { color: "#2a41d6" },
+        theme: { color: "#d3a43b" },
       });
       razorpay.open();
     } catch {
@@ -90,14 +90,16 @@ export function CheckoutBox({
   }
 
   return (
-    <div className="rounded-2xl border border-ink-100 bg-white p-6 shadow-card">
+    <div className="border border-ink-300 bg-ink-100 p-6">
       <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
 
-      <div className="text-3xl font-bold text-ink-900">{formatPrice(course.price, course.currency)}</div>
+      <div className="font-display text-3xl font-bold text-ink-900">
+        {formatPrice(course.price, course.currency)}
+      </div>
 
       {isEnrolled ? (
         <>
-          <p className="mt-3 flex items-center gap-1.5 text-sm text-emerald-600">
+          <p className="mt-3 flex items-center gap-1.5 text-sm text-success">
             <CheckCircle2 className="h-4 w-4" /> You own this course
           </p>
           <Button className="mt-4 w-full" size="lg" onClick={() => router.push("/dashboard")}>
@@ -128,7 +130,7 @@ export function CheckoutBox({
             </button>
           )}
 
-          {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
+          {error && <p className="mt-3 text-sm text-danger">{error}</p>}
         </>
       ) : (
         <>
@@ -139,10 +141,10 @@ export function CheckoutBox({
           >
             Sign up to get instant access
           </Button>
-          <p className="mt-2 text-center text-xs text-ink-400">
+          <p className="mt-2 text-center text-xs text-ink-500">
             Already have an account?{" "}
             <button
-              className="text-brand-600 hover:underline"
+              className="text-brand-300 hover:underline"
               onClick={() => router.push(`/login?next=/courses/${course.slug}`)}
             >
               Log in

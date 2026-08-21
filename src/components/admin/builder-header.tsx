@@ -30,7 +30,7 @@ export function BuilderHeader({
           <ArrowLeft className="h-3.5 w-3.5" /> All courses
         </Link>
         <div className="mt-1 flex items-center gap-2">
-          <h1 className="text-2xl font-bold text-ink-900">{title || "Untitled Course"}</h1>
+          <h1 className="font-display text-2xl font-bold tracking-tight text-ink-900">{title || "Untitled Course"}</h1>
           <Badge tone={status === "published" ? "success" : "neutral"}>
             {status === "published" ? "Published" : "Draft"}
           </Badge>

@@ -1,7 +1,11 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { CheckCircle2, Circle, PlayCircle } from "lucide-react";
+import { Check } from "lucide-react";
 import type { SectionWithLessons } from "@/types/database";
+
+function pad(n: number) {
+  return String(n).padStart(2, "0");
+}
 
 export function CurriculumSidebar({
   courseSlug,
@@ -15,15 +19,15 @@ export function CurriculumSidebar({
   completedLessonIds: Set<string>;
 }) {
   return (
-    <nav className="rounded-2xl border border-ink-100 bg-white p-2">
-      <h2 className="px-3 py-2 text-sm font-semibold text-ink-900">Course Curriculum</h2>
-      <div className="max-h-[70vh] space-y-1 overflow-y-auto pb-2">
-        {sections.map((section) => (
-          <div key={section.id}>
-            <p className="px-3 pb-1 pt-3 text-xs font-semibold uppercase tracking-wide text-ink-400">
-              {section.title}
+    <nav className="border border-ink-300">
+      <h2 className="eyebrow border-b border-ink-300 px-4 py-3">Course Curriculum</h2>
+      <div className="max-h-[75vh] overflow-y-auto p-2">
+        {sections.map((section, sIdx) => (
+          <div key={section.id} className="py-2">
+            <p className="px-2 pb-1.5 font-mono text-[11px] tracking-wide text-ink-500">
+              {pad(sIdx + 1)} — {section.title.toUpperCase()}
             </p>
-            {section.lessons.map((lesson) => {
+            {section.lessons.map((lesson, lIdx) => {
               const isCurrent = lesson.id === currentLessonId;
               const isCompleted = completedLessonIds.has(lesson.id);
               return (
@@ -31,17 +35,20 @@ export function CurriculumSidebar({
                   key={lesson.id}
                   href={`/dashboard/learn/${courseSlug}/${lesson.id}`}
                   className={cn(
-                    "flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors",
-                    isCurrent ? "bg-brand-50 font-medium text-brand-700" : "text-ink-600 hover:bg-ink-50"
+                    "flex items-center gap-2.5 border-l-2 px-3 py-2 text-sm transition-colors",
+                    isCurrent
+                      ? "border-brand-400 bg-ink-200 font-medium text-brand-300"
+                      : "border-transparent text-ink-600 hover:bg-ink-200/60 hover:text-ink-900"
                   )}
                 >
-                  {isCompleted ? (
-                    <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-500" />
-                  ) : isCurrent ? (
-                    <PlayCircle className="h-4 w-4 shrink-0 text-brand-600" />
-                  ) : (
-                    <Circle className="h-4 w-4 shrink-0 text-ink-300" />
-                  )}
+                  <span
+                    className={cn(
+                      "flex h-4 w-4 shrink-0 items-center justify-center font-mono text-[10px]",
+                      isCompleted ? "text-success" : "text-ink-500"
+                    )}
+                  >
+                    {isCompleted ? <Check className="h-3.5 w-3.5" /> : pad(lIdx + 1)}
+                  </span>
                   <span className="line-clamp-1">{lesson.title}</span>
                 </Link>
               );

@@ -24,7 +24,7 @@ export function CourseBuilderTabs({
 
   return (
     <div>
-      <div className="flex gap-1 border-b border-ink-100">
+      <div className="flex gap-1 border-b border-ink-300">
         {TABS.map((tab) => (
           <button
             key={tab.key}
@@ -32,7 +32,7 @@ export function CourseBuilderTabs({
             className={cn(
               "border-b-2 px-4 py-2.5 text-sm font-medium transition-colors",
               active === tab.key
-                ? "border-ink-900 text-ink-900"
+                ? "border-brand-400 text-ink-900"
                 : "border-transparent text-ink-500 hover:text-ink-800"
             )}
           >

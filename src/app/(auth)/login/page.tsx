@@ -54,7 +54,7 @@ function LoginForm() {
   return (
     <Card>
       <CardContent className="p-6">
-        <h1 className="text-xl font-semibold text-ink-900">Log in</h1>
+        <h1 className="font-display text-xl font-semibold text-ink-900">Log in</h1>
         <p className="mt-1 text-sm text-ink-500">Welcome back. Continue where you left off.</p>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
@@ -65,7 +65,7 @@ function LoginForm() {
           <div>
             <div className="flex items-center justify-between">
               <Label htmlFor="password">Password</Label>
-              <Link href="/reset-password" className="text-xs text-brand-600 hover:underline">
+              <Link href="/reset-password" className="text-xs text-brand-300 hover:underline">
                 Forgot password?
               </Link>
             </div>
@@ -85,7 +85,7 @@ function LoginForm() {
 
         <p className="mt-6 text-center text-sm text-ink-500">
           Don&apos;t have an account?{" "}
-          <Link href="/signup" className="font-medium text-brand-600 hover:underline">
+          <Link href="/signup" className="font-medium text-brand-300 hover:underline">
             Sign up
           </Link>
         </p>

@@ -28,19 +28,19 @@ export function LessonRow({
       ref={setNodeRef}
       style={{ transform: CSS.Transform.toString(transform), transition }}
       className={cn(
-        "flex items-center gap-2 rounded-lg border border-transparent px-2 py-2 hover:border-ink-100 hover:bg-ink-50",
-        isDragging && "z-10 border-ink-200 bg-white shadow-card"
+        "flex items-center gap-2 rounded-md border border-transparent px-2 py-2 hover:border-ink-300 hover:bg-ink-200",
+        isDragging && "z-10 border-ink-400 bg-ink-200"
       )}
     >
       <button
         {...attributes}
         {...listeners}
-        className="cursor-grab touch-none text-ink-300 hover:text-ink-500 active:cursor-grabbing"
+        className="cursor-grab touch-none text-ink-500 hover:text-ink-800 active:cursor-grabbing"
       >
         <GripVertical className="h-4 w-4" />
       </button>
-      <Icon className="h-4 w-4 shrink-0 text-ink-400" />
-      <button onClick={onEdit} className="min-w-0 flex-1 truncate text-left text-sm text-ink-800 hover:text-brand-700">
+      <Icon className="h-4 w-4 shrink-0 text-ink-500" />
+      <button onClick={onEdit} className="min-w-0 flex-1 truncate text-left text-sm text-ink-800 hover:text-brand-300">
         {lesson.title}
       </button>
       {lesson.is_free_preview && (
@@ -49,9 +49,9 @@ export function LessonRow({
         </span>
       )}
       {!lesson.is_published && (
-        <span className="rounded-full bg-ink-100 px-2 py-0.5 text-xs font-medium text-ink-500">Hidden</span>
+        <span className="rounded-full border border-ink-400 px-2 py-0.5 text-xs font-medium text-ink-500">Hidden</span>
       )}
-      <button onClick={onDelete} className="rounded p-1 text-ink-300 hover:bg-red-50 hover:text-red-500">
+      <button onClick={onDelete} className="rounded p-1 text-ink-500 hover:bg-danger/10 hover:text-danger">
         <Trash2 className="h-3.5 w-3.5" />
       </button>
     </div>

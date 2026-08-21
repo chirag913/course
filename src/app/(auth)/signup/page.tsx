@@ -57,7 +57,7 @@ function SignUpForm() {
   return (
     <Card>
       <CardContent className="p-6">
-        <h1 className="text-xl font-semibold text-ink-900">Create your account</h1>
+        <h1 className="font-display text-xl font-semibold text-ink-900">Create your account</h1>
         <p className="mt-1 text-sm text-ink-500">Start learning in less than a minute.</p>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
@@ -87,7 +87,7 @@ function SignUpForm() {
 
         <p className="mt-6 text-center text-sm text-ink-500">
           Already have an account?{" "}
-          <Link href="/login" className="font-medium text-brand-600 hover:underline">
+          <Link href="/login" className="font-medium text-brand-300 hover:underline">
             Log in
           </Link>
         </p>

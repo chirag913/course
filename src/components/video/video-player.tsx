@@ -43,7 +43,7 @@ export function VideoPlayer({
 
   if (!videoId || failed || !adapter) {
     return (
-      <div className="flex aspect-video w-full flex-col items-center justify-center gap-2 rounded-xl bg-ink-900 text-ink-300">
+      <div className="flex aspect-video w-full flex-col items-center justify-center gap-2 rounded-md border border-ink-300 bg-black text-ink-500">
         <AlertCircle className="h-6 w-6" />
         <p className="text-sm">Unable to load video. Please try again.</p>
       </div>
@@ -51,7 +51,7 @@ export function VideoPlayer({
   }
 
   return (
-    <div className="aspect-video w-full overflow-hidden rounded-xl bg-black">
+    <div className="aspect-video w-full overflow-hidden rounded-md border border-ink-300 bg-black">
       <iframe
         key={videoId}
         id={iframeId}

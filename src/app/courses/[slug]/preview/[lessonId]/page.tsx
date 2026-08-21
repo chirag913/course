@@ -40,8 +40,8 @@ export default async function LessonPreviewPage({ params }: Props) {
           ← Back to {course.title}
         </Link>
 
-        <h1 className="mt-3 text-2xl font-bold text-ink-900">{lesson.title}</h1>
-        <span className="mt-1 inline-block rounded-full bg-brand-100 px-2.5 py-0.5 text-xs font-medium text-brand-700">
+        <h1 className="mt-3 font-display text-2xl font-bold tracking-tight text-ink-900">{lesson.title}</h1>
+        <span className="mt-2 inline-block rounded-full border border-brand-400/50 px-2.5 py-0.5 font-mono text-[11px] uppercase text-brand-300">
           Free Preview
         </span>
 
@@ -62,9 +62,9 @@ export default async function LessonPreviewPage({ params }: Props) {
           <div className="prose-content mt-6" dangerouslySetInnerHTML={{ __html: lesson.content }} />
         )}
 
-        <div className="mt-10 rounded-2xl border border-ink-100 bg-white p-6 text-center">
-          <p className="text-sm text-ink-600">Want the full course?</p>
-          <p className="mt-1 text-xl font-semibold text-ink-900">
+        <div className="mt-10 border border-ink-300 bg-ink-100 p-6 text-center">
+          <p className="text-sm text-ink-500">Want the full course?</p>
+          <p className="mt-1 font-display text-xl font-semibold text-ink-900">
             {formatPrice(course.price, course.currency)}
           </p>
           <Link href={`/courses/${slug}`}>

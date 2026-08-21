@@ -45,25 +45,25 @@ function TestimonialsPanel({ courseId, testimonials }: { courseId: string; testi
 
   return (
     <div>
-      <h3 className="text-sm font-semibold text-ink-900">Testimonials</h3>
-      <div className="mt-3 space-y-2">
+      <p className="eyebrow">Testimonials</p>
+      <div className="mt-3 space-y-2 border-t border-ink-300 pt-3">
         {testimonials.map((t) => (
-          <div key={t.id} className="flex items-start justify-between gap-3 rounded-lg border border-ink-100 p-3">
+          <div key={t.id} className="flex items-start justify-between gap-3 border border-ink-300 p-3">
             <div>
               <div className="flex items-center gap-1">
                 {Array.from({ length: t.rating }).map((_, i) => (
-                  <Star key={i} className="h-3 w-3 fill-amber-400 text-amber-400" />
+                  <Star key={i} className="h-3 w-3 fill-brand-400 text-brand-400" />
                 ))}
               </div>
               <p className="mt-1 text-sm text-ink-700">&ldquo;{t.content}&rdquo;</p>
-              <p className="mt-1 text-xs font-medium text-ink-500">{t.student_name}</p>
+              <p className="mt-1 font-mono text-xs text-ink-500">{t.student_name}</p>
             </div>
             <button
               onClick={() => startTransition(async () => {
                 await deleteTestimonial(courseId, t.id);
                 router.refresh();
               })}
-              className="shrink-0 rounded p-1 text-ink-300 hover:text-red-500"
+              className="shrink-0 rounded p-1 text-ink-500 hover:text-danger"
             >
               <Trash2 className="h-3.5 w-3.5" />
             </button>
@@ -71,7 +71,7 @@ function TestimonialsPanel({ courseId, testimonials }: { courseId: string; testi
         ))}
       </div>
 
-      <div className="mt-4 space-y-2 rounded-lg border border-dashed border-ink-200 p-3">
+      <div className="mt-4 space-y-2 border border-dashed border-ink-300 p-3">
         <Input placeholder="Student name" value={name} onChange={(e) => setName(e.target.value)} />
         <Textarea placeholder="What did they say?" rows={2} value={content} onChange={(e) => setContent(e.target.value)} />
         <div className="flex items-center gap-2">
@@ -79,7 +79,7 @@ function TestimonialsPanel({ courseId, testimonials }: { courseId: string; testi
           <select
             value={rating}
             onChange={(e) => setRating(Number(e.target.value))}
-            className="h-8 rounded-lg border border-ink-200 px-2 text-sm"
+            className="h-8 rounded-md border border-ink-300 bg-ink-100 px-2 text-sm text-ink-900"
           >
             {[5, 4, 3, 2, 1].map((n) => (
               <option key={n} value={n}>
@@ -114,10 +114,10 @@ function FaqsPanel({ courseId, faqs }: { courseId: string; faqs: Faq[] }) {
 
   return (
     <div>
-      <h3 className="text-sm font-semibold text-ink-900">FAQs</h3>
-      <div className="mt-3 space-y-2">
+      <p className="eyebrow">FAQs</p>
+      <div className="mt-3 space-y-2 border-t border-ink-300 pt-3">
         {faqs.map((faq) => (
-          <div key={faq.id} className="flex items-start justify-between gap-3 rounded-lg border border-ink-100 p-3">
+          <div key={faq.id} className="flex items-start justify-between gap-3 border border-ink-300 p-3">
             <div>
               <p className="text-sm font-medium text-ink-900">{faq.question}</p>
               <p className="mt-1 text-sm text-ink-600">{faq.answer}</p>
@@ -127,7 +127,7 @@ function FaqsPanel({ courseId, faqs }: { courseId: string; faqs: Faq[] }) {
                 await deleteFaq(courseId, faq.id);
                 router.refresh();
               })}
-              className="shrink-0 rounded p-1 text-ink-300 hover:text-red-500"
+              className="shrink-0 rounded p-1 text-ink-500 hover:text-danger"
             >
               <Trash2 className="h-3.5 w-3.5" />
             </button>
@@ -135,7 +135,7 @@ function FaqsPanel({ courseId, faqs }: { courseId: string; faqs: Faq[] }) {
         ))}
       </div>
 
-      <div className="mt-4 space-y-2 rounded-lg border border-dashed border-ink-200 p-3">
+      <div className="mt-4 space-y-2 border border-dashed border-ink-300 p-3">
         <Input placeholder="Question" value={question} onChange={(e) => setQuestion(e.target.value)} />
         <Textarea placeholder="Answer" rows={2} value={answer} onChange={(e) => setAnswer(e.target.value)} />
         <Button size="sm" onClick={handleAdd} loading={isPending}>

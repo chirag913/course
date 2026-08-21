@@ -8,7 +8,7 @@ export default async function AdminSettingsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-ink-900">Settings</h1>
+      <h1 className="font-display text-2xl font-bold tracking-tight text-ink-900">Settings</h1>
       <div className="mt-6">
         <CouponsManager coupons={(coupons ?? []) as Coupon[]} />
       </div>

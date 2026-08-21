@@ -140,14 +140,14 @@ export function LessonEditorDrawer({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-black/30" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex justify-end bg-black/50" onClick={onClose}>
       <div
-        className="flex h-full w-full max-w-lg flex-col overflow-y-auto bg-white shadow-xl"
+        className="flex h-full w-full max-w-lg flex-col overflow-y-auto border-l border-ink-300 bg-ink-100"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between border-b border-ink-100 px-5 py-4">
-          <h2 className="text-base font-semibold text-ink-900">{current ? "Edit Lesson" : "New Lesson"}</h2>
-          <button onClick={onClose} className="rounded p-1 text-ink-400 hover:bg-ink-100">
+        <div className="flex items-center justify-between border-b border-ink-300 px-5 py-4">
+          <h2 className="font-display text-base font-semibold text-ink-900">{current ? "Edit Lesson" : "New Lesson"}</h2>
+          <button onClick={onClose} className="rounded p-1 text-ink-500 hover:bg-ink-200">
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -164,7 +164,7 @@ export function LessonEditorDrawer({
               id="lesson_type"
               value={lessonType}
               onChange={(e) => setLessonType(e.target.value as LessonType)}
-              className="h-10 w-full rounded-lg border border-ink-200 bg-white px-3 text-sm text-ink-900 outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-100"
+              className="h-10 w-full rounded-md border border-ink-300 bg-ink-100 px-3 text-sm text-ink-900 outline-none focus:border-brand-400 focus:ring-2 focus:ring-brand-400/20"
             >
               {LESSON_TYPES.map((t) => (
                 <option key={t.value} value={t.value}>
@@ -183,7 +183,7 @@ export function LessonEditorDrawer({
                 value={videoUrl}
                 onChange={(e) => setVideoUrl(e.target.value)}
               />
-              <p className="mt-1 text-xs text-ink-400">Paste the full unlisted YouTube video URL.</p>
+              <p className="mt-1 text-xs text-ink-500">Paste the full unlisted YouTube video URL.</p>
             </div>
           )}
 
@@ -210,11 +210,11 @@ export function LessonEditorDrawer({
             </div>
           )}
 
-          <div className="rounded-xl border border-ink-100 p-4">
+          <div className="border border-ink-300 p-4">
             <div className="flex items-center justify-between">
               <Label className="mb-0">Course Materials</Label>
               {current && (
-                <label className="cursor-pointer text-xs font-medium text-brand-600 hover:underline">
+                <label className="cursor-pointer text-xs font-medium text-brand-300 hover:underline">
                   {uploading ? "Uploading..." : "+ Add Material"}
                   <input
                     type="file"
@@ -231,15 +231,15 @@ export function LessonEditorDrawer({
             </div>
 
             {!current && (
-              <p className="mt-2 text-xs text-ink-400">Save the lesson first to attach files.</p>
+              <p className="mt-2 text-xs text-ink-500">Save the lesson first to attach files.</p>
             )}
 
             {current && current.lesson_resources.length > 0 && (
               <ul className="mt-3 space-y-1.5">
                 {current.lesson_resources.map((resource) => (
-                  <li key={resource.id} className="flex items-center justify-between rounded-lg bg-ink-50 px-2.5 py-1.5">
+                  <li key={resource.id} className="flex items-center justify-between bg-ink-200 px-2.5 py-1.5">
                     <span className="flex min-w-0 items-center gap-1.5 text-sm text-ink-700">
-                      <FileDown className="h-3.5 w-3.5 shrink-0 text-ink-400" />
+                      <FileDown className="h-3.5 w-3.5 shrink-0 text-ink-500" />
                       <span className="truncate">{resource.name}</span>
                     </span>
                     <button
@@ -253,7 +253,7 @@ export function LessonEditorDrawer({
                           );
                         })
                       }
-                      className="rounded p-1 text-ink-300 hover:text-red-500"
+                      className="rounded p-1 text-ink-500 hover:text-danger"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
@@ -269,7 +269,7 @@ export function LessonEditorDrawer({
               type="checkbox"
               checked={isFreePreview}
               onChange={(e) => setIsFreePreview(e.target.checked)}
-              className="h-4 w-4 rounded border-ink-300"
+              className="h-4 w-4 rounded border-ink-300 accent-brand-400"
             />
             Free Preview
           </label>
@@ -278,7 +278,7 @@ export function LessonEditorDrawer({
               type="checkbox"
               checked={isPublished}
               onChange={(e) => setIsPublished(e.target.checked)}
-              className="h-4 w-4 rounded border-ink-300"
+              className="h-4 w-4 rounded border-ink-300 accent-brand-400"
             />
             Visible to students
           </label>
@@ -286,9 +286,9 @@ export function LessonEditorDrawer({
           {error && <FieldError>{error}</FieldError>}
         </div>
 
-        <div className="flex items-center justify-between border-t border-ink-100 p-5">
+        <div className="flex items-center justify-between border-t border-ink-300 p-5">
           {current ? (
-            <Button variant="ghost" onClick={handleDelete} loading={isPending} className="text-red-600">
+            <Button variant="ghost" onClick={handleDelete} loading={isPending} className="text-danger">
               <Trash2 className="h-4 w-4" /> Delete Lesson
             </Button>
           ) : (

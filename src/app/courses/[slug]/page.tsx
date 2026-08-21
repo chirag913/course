@@ -77,6 +77,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
+function pad(n: number) {
+  return String(n).padStart(2, "0");
+}
+
 export default async function CourseSalesPage({ params }: Props) {
   const { slug } = await params;
   const data = await getCourseData(slug);
@@ -111,20 +115,16 @@ export default async function CourseSalesPage({ params }: Props) {
       <SiteHeader />
 
       {/* Hero */}
-      <section className="border-b border-ink-100 bg-white">
-        <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[1.4fr_1fr] lg:py-16">
+      <section className="border-b border-ink-300">
+        <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[1.4fr_1fr] lg:py-20">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-ink-900 sm:text-4xl">
+            {course.instructor_name && <p className="eyebrow">By {course.instructor_name}</p>}
+            <h1 className="mt-3 font-display text-4xl font-bold leading-[1.05] tracking-tightest text-ink-900 sm:text-5xl">
               {course.title}
             </h1>
-            {course.subtitle && <p className="mt-3 text-lg text-ink-500">{course.subtitle}</p>}
-            {course.instructor_name && (
-              <p className="mt-4 text-sm text-ink-600">
-                By <span className="font-medium text-ink-900">{course.instructor_name}</span>
-              </p>
-            )}
+            {course.subtitle && <p className="mt-4 max-w-xl text-lg text-ink-500">{course.subtitle}</p>}
 
-            <div className="relative mt-6 aspect-video w-full overflow-hidden rounded-2xl bg-ink-100 shadow-card">
+            <div className="relative mt-8 aspect-video w-full overflow-hidden rounded-md border border-ink-300 bg-ink-100">
               {course.thumbnail_url ? (
                 <Image src={course.thumbnail_url} alt={course.title} fill className="object-cover" priority />
               ) : null}
@@ -137,16 +137,16 @@ export default async function CourseSalesPage({ params }: Props) {
         </div>
       </section>
 
-      <main className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-        <div className="grid gap-12 lg:grid-cols-[1.4fr_1fr]">
-          <div className="space-y-12">
+      <main className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+        <div className="grid gap-16 lg:grid-cols-[1.4fr_1fr]">
+          <div className="space-y-16">
             {course.what_you_will_learn.length > 0 && (
               <section>
-                <h2 className="text-xl font-semibold text-ink-900">What you&apos;ll learn</h2>
-                <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+                <p className="eyebrow">What you&apos;ll learn</p>
+                <ul className="mt-5 grid gap-3 border-t border-ink-300 pt-5 sm:grid-cols-2">
                   {course.what_you_will_learn.map((point, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-ink-700">
-                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-500" />
+                    <li key={i} className="flex items-start gap-2.5 text-sm text-ink-700">
+                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-success" />
                       {point}
                     </li>
                   ))}
@@ -156,54 +156,55 @@ export default async function CourseSalesPage({ params }: Props) {
 
             {course.description && (
               <section>
-                <h2 className="text-xl font-semibold text-ink-900">About this course</h2>
+                <p className="eyebrow">About this course</p>
                 <div
-                  className="prose-content mt-4"
+                  className="prose-content mt-5 border-t border-ink-300 pt-5"
                   dangerouslySetInnerHTML={{ __html: course.description }}
                 />
               </section>
             )}
 
             <section>
-              <h2 className="text-xl font-semibold text-ink-900">Course curriculum</h2>
-              <p className="mt-1 text-sm text-ink-500">
-                {sections.length} sections · {totalLessons} lessons · {formatDuration(totalDuration)} total
+              <p className="eyebrow">Course curriculum</p>
+              <p className="mt-2 font-mono text-xs text-ink-500">
+                {sections.length} SECTIONS · {totalLessons} LESSONS · {formatDuration(totalDuration).toUpperCase()} TOTAL
               </p>
-              <div className="mt-4 space-y-3">
-                {sections.map((section) => {
+              <div className="mt-5 divide-y divide-ink-300 border-t border-ink-300">
+                {sections.map((section, sIdx) => {
                   const lessons = lessonsBySection.get(section.id) ?? [];
                   return (
-                    <div key={section.id} className="overflow-hidden rounded-xl border border-ink-100 bg-white">
-                      <div className="border-b border-ink-100 bg-ink-50 px-4 py-3">
-                        <h3 className="text-sm font-semibold text-ink-900">{section.title}</h3>
-                      </div>
-                      <ul className="divide-y divide-ink-100">
-                        {lessons.map((lesson) => (
-                          <li key={lesson.id} className="flex items-center justify-between px-4 py-3 text-sm">
-                            <div className="flex items-center gap-2 text-ink-700">
+                    <div key={section.id} className="py-5">
+                      <h3 className="font-mono text-xs font-medium tracking-wide text-ink-500">
+                        {pad(sIdx + 1)} — {section.title.toUpperCase()}
+                      </h3>
+                      <ul className="mt-3 space-y-2.5">
+                        {lessons.map((lesson, lIdx) => (
+                          <li key={lesson.id} className="flex items-center justify-between gap-4 text-sm">
+                            <div className="flex min-w-0 items-center gap-2.5 text-ink-700">
+                              <span className="font-mono text-xs text-ink-500">{pad(lIdx + 1)}</span>
                               {lesson.lesson_type === "video" ? (
-                                <PlayCircle className="h-4 w-4 text-ink-400" />
+                                <PlayCircle className="h-3.5 w-3.5 shrink-0 text-ink-500" />
                               ) : (
-                                <FileText className="h-4 w-4 text-ink-400" />
+                                <FileText className="h-3.5 w-3.5 shrink-0 text-ink-500" />
                               )}
                               {lesson.is_free_preview ? (
                                 <Link
                                   href={`/courses/${course.slug}/preview/${lesson.id}`}
-                                  className="font-medium text-brand-600 hover:underline"
+                                  className="truncate font-medium text-brand-300 hover:underline"
                                 >
                                   {lesson.title}
                                 </Link>
                               ) : (
-                                <span>{lesson.title}</span>
+                                <span className="truncate">{lesson.title}</span>
                               )}
                               {lesson.is_free_preview && (
-                                <span className="rounded-full bg-brand-100 px-2 py-0.5 text-xs font-medium text-brand-700">
-                                  Free Preview
+                                <span className="shrink-0 rounded-full border border-brand-400/50 px-2 py-0.5 font-mono text-[10px] uppercase text-brand-300">
+                                  Preview
                                 </span>
                               )}
                             </div>
                             {lesson.duration_seconds > 0 && (
-                              <span className="text-xs text-ink-400">
+                              <span className="shrink-0 font-mono text-xs text-ink-500">
                                 {formatDuration(lesson.duration_seconds)}
                               </span>
                             )}
@@ -218,17 +219,17 @@ export default async function CourseSalesPage({ params }: Props) {
 
             {testimonials.length > 0 && (
               <section>
-                <h2 className="text-xl font-semibold text-ink-900">What students say</h2>
-                <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                <p className="eyebrow">What students say</p>
+                <div className="mt-5 grid gap-px border-t border-ink-300 pt-5 sm:grid-cols-2 sm:gap-8">
                   {testimonials.map((t) => (
-                    <div key={t.id} className="rounded-xl border border-ink-100 bg-white p-5">
+                    <div key={t.id} className="border-t border-ink-300 pt-5 first:border-t-0 first:pt-0 sm:border-t-0 sm:pt-0">
                       <div className="flex gap-0.5">
                         {Array.from({ length: t.rating }).map((_, i) => (
-                          <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />
+                          <Star key={i} className="h-3.5 w-3.5 fill-brand-400 text-brand-400" />
                         ))}
                       </div>
                       <p className="mt-3 text-sm text-ink-700">&ldquo;{t.content}&rdquo;</p>
-                      <p className="mt-3 text-sm font-medium text-ink-900">{t.student_name}</p>
+                      <p className="mt-3 font-mono text-xs text-ink-500">{t.student_name.toUpperCase()}</p>
                     </div>
                   ))}
                 </div>
@@ -237,14 +238,14 @@ export default async function CourseSalesPage({ params }: Props) {
 
             {faqs.length > 0 && (
               <section>
-                <h2 className="text-xl font-semibold text-ink-900">Frequently asked questions</h2>
-                <div className="mt-4 divide-y divide-ink-100 rounded-xl border border-ink-100 bg-white">
+                <p className="eyebrow">Frequently asked questions</p>
+                <div className="mt-5 divide-y divide-ink-300 border-t border-ink-300">
                   {faqs.map((faq) => (
-                    <details key={faq.id} className="group p-5">
+                    <details key={faq.id} className="group py-4">
                       <summary className="cursor-pointer list-none text-sm font-medium text-ink-900">
                         {faq.question}
                       </summary>
-                      <p className="mt-2 text-sm text-ink-600">{faq.answer}</p>
+                      <p className="mt-2 text-sm text-ink-500">{faq.answer}</p>
                     </details>
                   ))}
                 </div>
@@ -252,11 +253,11 @@ export default async function CourseSalesPage({ params }: Props) {
             )}
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-10">
             {course.instructor_name && (
-              <div className="rounded-2xl border border-ink-100 bg-white p-6">
-                <h3 className="text-sm font-semibold text-ink-400">Instructor</h3>
-                <div className="mt-3 flex items-center gap-3">
+              <div>
+                <p className="eyebrow">Instructor</p>
+                <div className="mt-4 flex items-center gap-3 border-t border-ink-300 pt-4">
                   {course.instructor_avatar_url ? (
                     <Image
                       src={course.instructor_avatar_url}
@@ -266,30 +267,30 @@ export default async function CourseSalesPage({ params }: Props) {
                       className="rounded-full object-cover"
                     />
                   ) : (
-                    <div className="h-12 w-12 rounded-full bg-ink-200" />
+                    <div className="h-12 w-12 rounded-full border border-ink-300" />
                   )}
-                  <p className="font-medium text-ink-900">{course.instructor_name}</p>
+                  <p className="font-display font-semibold text-ink-900">{course.instructor_name}</p>
                 </div>
                 {course.instructor_bio && (
-                  <p className="mt-3 text-sm text-ink-600">{course.instructor_bio}</p>
+                  <p className="mt-3 text-sm text-ink-500">{course.instructor_bio}</p>
                 )}
               </div>
             )}
 
-            <div className="rounded-2xl border border-ink-100 bg-white p-6">
-              <h3 className="text-sm font-semibold text-ink-400">Course information</h3>
-              <dl className="mt-3 space-y-2 text-sm">
+            <div>
+              <p className="eyebrow">Course information</p>
+              <dl className="mt-4 space-y-2.5 border-t border-ink-300 pt-4 text-sm">
                 <div className="flex justify-between">
                   <dt className="text-ink-500">Sections</dt>
-                  <dd className="font-medium text-ink-900">{sections.length}</dd>
+                  <dd className="font-mono text-ink-900">{sections.length}</dd>
                 </div>
                 <div className="flex justify-between">
                   <dt className="text-ink-500">Lessons</dt>
-                  <dd className="font-medium text-ink-900">{totalLessons}</dd>
+                  <dd className="font-mono text-ink-900">{totalLessons}</dd>
                 </div>
                 <div className="flex justify-between">
                   <dt className="text-ink-500">Total duration</dt>
-                  <dd className="font-medium text-ink-900">{formatDuration(totalDuration)}</dd>
+                  <dd className="font-mono text-ink-900">{formatDuration(totalDuration)}</dd>
                 </div>
               </dl>
             </div>

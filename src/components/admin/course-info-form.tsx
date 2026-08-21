@@ -38,7 +38,7 @@ export function CourseInfoForm({ course }: { course: Course }) {
         <div>
           <Label htmlFor="slug">URL slug</Label>
           <Input id="slug" name="slug" defaultValue={course.slug} required />
-          <p className="mt-1 text-xs text-ink-400">
+          <p className="mt-1 font-mono text-xs text-ink-500">
             Public URL: {process.env.NEXT_PUBLIC_SITE_URL ?? ""}/courses/{course.slug}
           </p>
         </div>
@@ -83,8 +83,8 @@ export function CourseInfoForm({ course }: { course: Course }) {
           <Textarea id="instructor_bio" name="instructor_bio" rows={3} defaultValue={course.instructor_bio ?? ""} />
         </div>
 
-        {error && <p className="text-sm text-red-600">{error}</p>}
-        {saved && !error && <p className="text-sm text-emerald-600">Saved.</p>}
+        {error && <p className="text-sm text-danger">{error}</p>}
+        {saved && !error && <p className="text-sm text-success">Saved.</p>}
         <Button type="submit" loading={isPending}>
           Save course information
         </Button>

@@ -6,7 +6,7 @@ export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputE
     <input
       ref={ref}
       className={cn(
-        "h-10 w-full rounded-lg border border-ink-200 bg-white px-3 text-sm text-ink-900 placeholder:text-ink-400 outline-none transition-shadow focus:border-brand-400 focus:ring-2 focus:ring-brand-100",
+        "h-10 w-full rounded-md border border-ink-300 bg-ink-100 px-3 text-sm text-ink-900 placeholder:text-ink-500 outline-none transition-shadow focus:border-brand-400 focus:ring-2 focus:ring-brand-400/20",
         className
       )}
       {...props}
@@ -22,7 +22,7 @@ export const Textarea = forwardRef<
   <textarea
     ref={ref}
     className={cn(
-      "w-full rounded-lg border border-ink-200 bg-white px-3 py-2 text-sm text-ink-900 placeholder:text-ink-400 outline-none transition-shadow focus:border-brand-400 focus:ring-2 focus:ring-brand-100",
+      "w-full rounded-md border border-ink-300 bg-ink-100 px-3 py-2 text-sm text-ink-900 placeholder:text-ink-500 outline-none transition-shadow focus:border-brand-400 focus:ring-2 focus:ring-brand-400/20",
       className
     )}
     {...props}
@@ -32,11 +32,11 @@ Textarea.displayName = "Textarea";
 
 export function Label({ className, ...props }: React.LabelHTMLAttributes<HTMLLabelElement>) {
   return (
-    <label className={cn("mb-1.5 block text-sm font-medium text-ink-800", className)} {...props} />
+    <label className={cn("mb-1.5 block text-sm font-medium text-ink-700", className)} {...props} />
   );
 }
 
 export function FieldError({ children }: { children?: string }) {
   if (!children) return null;
-  return <p className="mt-1 text-sm text-red-600">{children}</p>;
+  return <p className="mt-1 text-sm text-danger">{children}</p>;
 }

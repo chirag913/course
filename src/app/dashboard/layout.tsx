@@ -1,39 +1,41 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
-import { GraduationCap, User } from "lucide-react";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const user = await requireUser();
 
   return (
     <div className="min-h-screen bg-ink-50">
-      <header className="sticky top-0 z-40 border-b border-ink-100 bg-white/80 backdrop-blur">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-          <Link href="/dashboard" className="text-lg font-bold tracking-tight text-ink-900">
-            Learn
+      <header className="sticky top-0 z-40 border-b border-ink-300 bg-ink-50/90 backdrop-blur">
+        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
+          <Link
+            href="/dashboard"
+            className="shrink-0 whitespace-nowrap font-display text-base font-bold tracking-tight text-ink-900 sm:text-lg"
+          >
+            Chirag Sharma<span className="text-brand-400">.</span>
           </Link>
-          <nav className="flex items-center gap-1">
+          <nav className="flex items-center gap-3 sm:gap-6">
             <Link
               href="/dashboard"
-              className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-ink-600 hover:bg-ink-100 hover:text-ink-900"
+              className="whitespace-nowrap text-[11px] font-semibold uppercase tracking-widest2 text-ink-600 transition-colors hover:text-ink-900 sm:text-xs"
             >
-              <GraduationCap className="h-4 w-4" /> My Courses
+              My Courses
             </Link>
             <Link
               href="/dashboard/profile"
-              className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-ink-600 hover:bg-ink-100 hover:text-ink-900"
+              className="whitespace-nowrap text-[11px] font-semibold uppercase tracking-widest2 text-ink-600 transition-colors hover:text-ink-900 sm:text-xs"
             >
-              <User className="h-4 w-4" /> Profile
+              Profile
             </Link>
             <form action="/logout" method="post">
-              <button className="ml-2 rounded-lg px-3 py-2 text-sm font-medium text-ink-500 hover:bg-ink-100 hover:text-ink-900">
+              <button className="whitespace-nowrap text-[11px] font-semibold uppercase tracking-widest2 text-ink-500 transition-colors hover:text-ink-900 sm:text-xs">
                 Log out
               </button>
             </form>
           </nav>
         </div>
       </header>
-      <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+      <main className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
         <p className="sr-only">Signed in as {user.email}</p>
         {children}
       </main>

@@ -32,11 +32,11 @@ export default function ResetPasswordPage() {
   return (
     <Card>
       <CardContent className="p-6">
-        <h1 className="text-xl font-semibold text-ink-900">Reset your password</h1>
+        <h1 className="font-display text-xl font-semibold text-ink-900">Reset your password</h1>
         <p className="mt-1 text-sm text-ink-500">We&apos;ll email you a link to set a new password.</p>
 
         {sent ? (
-          <p className="mt-6 rounded-lg bg-emerald-50 p-3 text-sm text-emerald-700">
+          <p className="mt-6 rounded-md border border-success/30 p-3 text-sm text-success">
             Check your inbox for a password reset link.
           </p>
         ) : (
@@ -53,7 +53,7 @@ export default function ResetPasswordPage() {
         )}
 
         <p className="mt-6 text-center text-sm text-ink-500">
-          <Link href="/login" className="font-medium text-brand-600 hover:underline">
+          <Link href="/login" className="font-medium text-brand-300 hover:underline">
             Back to login
           </Link>
         </p>

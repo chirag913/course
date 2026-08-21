@@ -75,22 +75,22 @@ export default async function CoursePlayerPage({ params }: Props) {
 
   return (
     <div>
-      <div className="mb-6">
+      <div className="mb-8">
         <Link href="/dashboard" className="text-sm text-ink-500 hover:text-ink-900">
           ← My Courses
         </Link>
         <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
-          <h1 className="text-xl font-bold text-ink-900">{course.title}</h1>
-          <div className="flex items-center gap-2">
-            <div className="h-2 w-32 overflow-hidden rounded-full bg-ink-100">
-              <div className="h-full rounded-full bg-brand-600" style={{ width: `${overallPercent}%` }} />
+          <h1 className="font-display text-xl font-bold tracking-tight text-ink-900">{course.title}</h1>
+          <div className="flex items-center gap-3">
+            <div className="h-px w-24 overflow-hidden bg-ink-300">
+              <div className="h-full bg-brand-400" style={{ width: `${overallPercent}%` }} />
             </div>
-            <span className="text-sm font-medium text-ink-500">{overallPercent}% Complete</span>
+            <span className="font-mono text-xs text-ink-500">{overallPercent}% COMPLETE</span>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_320px]">
+      <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_320px]">
         <LessonPlayer
           courseSlug={courseSlug}
           lesson={currentLesson}

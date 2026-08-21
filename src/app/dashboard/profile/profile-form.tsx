@@ -35,7 +35,7 @@ export function ProfileForm({ email, fullName }: { email: string; fullName: stri
         <Label htmlFor="name">Full name</Label>
         <Input id="name" value={name} onChange={(e) => setName(e.target.value)} />
       </div>
-      {saved && <p className="text-sm text-emerald-600">Saved.</p>}
+      {saved && <p className="text-sm text-success">Saved.</p>}
       <Button type="submit" loading={loading}>
         Save changes
       </Button>

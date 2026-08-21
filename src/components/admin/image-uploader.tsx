@@ -57,12 +57,12 @@ export function ImageUploader({
   return (
     <div>
       <div
-        className={`relative w-full overflow-hidden rounded-xl border border-dashed border-ink-200 bg-ink-50 ${aspectClassName}`}
+        className={`relative w-full overflow-hidden rounded-md border border-dashed border-ink-300 bg-ink-100 ${aspectClassName}`}
       >
         {value ? (
           <Image src={value} alt="" fill className="object-cover" />
         ) : (
-          <div className="flex h-full flex-col items-center justify-center gap-1 text-ink-400">
+          <div className="flex h-full flex-col items-center justify-center gap-1 text-ink-500">
             <ImagePlus className="h-6 w-6" />
             <span className="text-xs">No image</span>
           </div>
@@ -88,7 +88,7 @@ export function ImageUploader({
       >
         {value ? "Replace image" : "Upload image"}
       </Button>
-      {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
+      {error && <p className="mt-1 text-xs text-danger">{error}</p>}
     </div>
   );
 }

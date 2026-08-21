@@ -39,7 +39,7 @@ export default function UpdatePasswordPage() {
   return (
     <Card>
       <CardContent className="p-6">
-        <h1 className="text-xl font-semibold text-ink-900">Set a new password</h1>
+        <h1 className="font-display text-xl font-semibold text-ink-900">Set a new password</h1>
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           <div>
             <Label htmlFor="password">New password</Label>

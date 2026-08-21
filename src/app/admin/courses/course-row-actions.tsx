@@ -24,7 +24,7 @@ export function CourseRowActions({
 
   return (
     <div className="flex flex-wrap items-center justify-end gap-2">
-      {error && <p className="w-full text-right text-xs text-red-600">{error}</p>}
+      {error && <p className="w-full text-right text-xs text-danger">{error}</p>}
 
       <Link href={`/admin/courses/${courseId}`}>
         <Button size="sm" variant="outline">
@@ -89,7 +89,7 @@ export function CourseRowActions({
         </>
       ) : (
         <Button size="sm" variant="ghost" onClick={() => setConfirmingDelete(true)}>
-          <Trash2 className="h-3.5 w-3.5 text-red-500" />
+          <Trash2 className="h-3.5 w-3.5 text-danger" />
         </Button>
       )}
     </div>

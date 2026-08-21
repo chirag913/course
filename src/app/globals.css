@@ -2,15 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=Fraunces:ital,wght@0,400;1,400;1,500&family=JetBrains+Mono:wght@400;500&display=swap");
 
 :root {
-  color-scheme: light;
+  color-scheme: dark;
 }
 
 body {
   @apply bg-ink-50 text-ink-900 antialiased;
   font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+::selection {
+  @apply bg-brand-400 text-ink-50;
 }
 
 .prose-content {
@@ -26,13 +30,13 @@ body {
   @apply mb-4 list-decimal pl-6 space-y-1;
 }
 .prose-content h2 {
-  @apply text-xl font-semibold text-ink-900 mt-6 mb-3;
+  @apply font-display text-xl font-semibold text-ink-900 mt-6 mb-3;
 }
 .prose-content h3 {
-  @apply text-lg font-semibold text-ink-900 mt-5 mb-2;
+  @apply font-display text-lg font-semibold text-ink-900 mt-5 mb-2;
 }
 .prose-content a {
-  @apply text-brand-600 underline underline-offset-2;
+  @apply text-brand-300 underline underline-offset-2;
 }
 .prose-content strong {
   @apply font-semibold text-ink-900;
@@ -43,5 +47,11 @@ body {
 }
 .ProseMirror p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);
-  @apply text-ink-400 float-left h-0 pointer-events-none;
+  @apply text-ink-500 float-left h-0 pointer-events-none;
+}
+
+/* Small uppercase mono "eyebrow" label — the recurring section marker
+   pattern from chiragsharma.co (e.g. "MARKET 01", "THE PROCESS"). */
+.eyebrow {
+  @apply font-sans text-xs font-semibold uppercase tracking-widest2 text-brand-400;
 }

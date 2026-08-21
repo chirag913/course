@@ -44,8 +44,8 @@ export function RichTextEditor({
   ];
 
   return (
-    <div className="overflow-hidden rounded-lg border border-ink-200 bg-white focus-within:border-brand-400 focus-within:ring-2 focus-within:ring-brand-100">
-      <div className="flex items-center gap-0.5 border-b border-ink-100 bg-ink-50 p-1.5">
+    <div className="overflow-hidden rounded-md border border-ink-300 bg-ink-100 focus-within:border-brand-400 focus-within:ring-2 focus-within:ring-brand-400/20">
+      <div className="flex items-center gap-0.5 border-b border-ink-300 bg-ink-200 p-1.5">
         {buttons.map((btn) => (
           <button
             key={btn.label}
@@ -53,8 +53,8 @@ export function RichTextEditor({
             title={btn.label}
             onClick={btn.run}
             className={cn(
-              "rounded p-1.5 text-ink-500 hover:bg-ink-200",
-              btn.active && "bg-ink-900 text-white hover:bg-ink-900"
+              "rounded p-1.5 text-ink-500 hover:bg-ink-300",
+              btn.active && "bg-brand-400 text-ink-50 hover:bg-brand-400"
             )}
           >
             <btn.icon className="h-3.5 w-3.5" />

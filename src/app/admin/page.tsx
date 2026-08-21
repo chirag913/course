@@ -1,5 +1,4 @@
 import { createClient } from "@/lib/supabase/server";
-import { Card, CardContent } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { formatPrice, formatCurrency, formatDate } from "@/lib/utils";
 import { IndianRupee, Users, BookOpen, ShoppingCart, Receipt } from "lucide-react";
@@ -33,41 +32,37 @@ export default async function AdminDashboardPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-ink-900">Dashboard</h1>
+      <h1 className="font-display text-2xl font-bold tracking-tight text-ink-900">Dashboard</h1>
 
-      <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="mt-6 grid grid-cols-2 divide-x divide-y divide-ink-300 border border-ink-300 lg:grid-cols-4 lg:divide-y-0">
         {stats.map((stat) => (
-          <Card key={stat.label}>
-            <CardContent className="p-5">
-              <div className="flex items-center gap-2 text-ink-400">
-                <stat.icon className="h-4 w-4" />
-                <span className="text-xs font-medium uppercase tracking-wide">{stat.label}</span>
-              </div>
-              <p className="mt-2 text-2xl font-bold text-ink-900">{stat.value}</p>
-            </CardContent>
-          </Card>
+          <div key={stat.label} className="p-5">
+            <div className="flex items-center gap-2 text-ink-500">
+              <stat.icon className="h-3.5 w-3.5" />
+              <span className="font-mono text-[11px] uppercase tracking-wide">{stat.label}</span>
+            </div>
+            <p className="mt-2 font-display text-2xl font-bold text-ink-900">{stat.value}</p>
+          </div>
         ))}
       </div>
 
-      <h2 className="mt-10 text-sm font-semibold uppercase tracking-wide text-ink-400">
-        Recent Purchases
-      </h2>
+      <p className="eyebrow mt-10">Recent Purchases</p>
 
-      <Card className="mt-4">
+      <div className="mt-4 border-t border-ink-300">
         {recentOrders && recentOrders.length > 0 ? (
-          <div className="divide-y divide-ink-100">
+          <div className="divide-y divide-ink-300">
             {recentOrders.map((order) => {
               const profile = order.profiles as unknown as { full_name: string | null } | null;
               const course = order.courses as unknown as { title: string } | null;
               return (
-                <div key={order.id} className="flex items-center justify-between px-5 py-3.5">
+                <div key={order.id} className="flex items-center justify-between py-3.5">
                   <div>
                     <p className="text-sm font-medium text-ink-900">
                       {profile?.full_name ?? "Student"} — {course?.title ?? "Course"}
                     </p>
-                    <p className="text-xs text-ink-400">{formatDate(order.created_at)}</p>
+                    <p className="font-mono text-xs text-ink-500">{formatDate(order.created_at)}</p>
                   </div>
-                  <span className="text-sm font-semibold text-ink-900">
+                  <span className="font-mono text-sm font-semibold text-ink-900">
                     {formatPrice(order.amount, order.currency)}
                   </span>
                 </div>
@@ -75,9 +70,9 @@ export default async function AdminDashboardPage() {
             })}
           </div>
         ) : (
-          <EmptyState icon={Receipt} title="No purchases yet" className="border-0" />
+          <EmptyState icon={Receipt} title="No purchases yet" className="border-0 border-b" />
         )}
-      </Card>
+      </div>
     </div>
   );
 }
