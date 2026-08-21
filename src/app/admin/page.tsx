@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardContent } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
-import { formatPrice, formatDate } from "@/lib/utils";
+import { formatPrice, formatCurrency, formatDate } from "@/lib/utils";
 import { IndianRupee, Users, BookOpen, ShoppingCart, Receipt } from "lucide-react";
 
 export default async function AdminDashboardPage() {
@@ -25,7 +25,7 @@ export default async function AdminDashboardPage() {
     .limit(8);
 
   const stats = [
-    { label: "Total Revenue", value: formatPrice(totalRevenue), icon: IndianRupee },
+    { label: "Total Revenue", value: formatCurrency(totalRevenue), icon: IndianRupee },
     { label: "Total Students", value: totalStudents, icon: Users },
     { label: "Total Courses", value: courseCount ?? 0, icon: BookOpen },
     { label: "Total Sales", value: totalSales, icon: ShoppingCart },

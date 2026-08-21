@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { requireAdmin } from "@/lib/auth";
 import { courseInfoSchema, sectionSchema, lessonSchema, testimonialSchema, faqSchema } from "@/lib/validations";
 import { getVideoProvider } from "@/lib/video";
+import { slugify } from "@/lib/utils";
 
 function revalidateCourse(courseId: string) {
   revalidatePath(`/admin/courses/${courseId}`);
@@ -18,7 +19,8 @@ export async function updateCourseInfo(courseId: string, formData: FormData) {
   // The form collects price in rupees for a human-friendly input; the
   // database stores paise (INR minor unit) per DATABASE.md.
   const priceInPaise = Math.round(Number(raw.price || 0) * 100);
-  const parsed = courseInfoSchema.safeParse({ ...raw, price: priceInPaise });
+  const slug = slugify(String(raw.slug ?? ""));
+  const parsed = courseInfoSchema.safeParse({ ...raw, price: priceInPaise, slug });
   if (!parsed.success) throw new Error(parsed.error.issues[0]?.message ?? "Invalid input.");
 
   const whatYouWillLearn = String(raw.what_you_will_learn ?? "")
@@ -27,6 +29,16 @@ export async function updateCourseInfo(courseId: string, formData: FormData) {
     .filter(Boolean);
 
   const supabase = await createClient();
+
+  const { data: slugOwner } = await supabase
+    .from("courses")
+    .select("id")
+    .eq("slug", parsed.data.slug)
+    .maybeSingle();
+  if (slugOwner && slugOwner.id !== courseId) {
+    throw new Error("That URL slug is already used by another course.");
+  }
+
   const { error } = await supabase
     .from("courses")
     .update({ ...parsed.data, what_you_will_learn: whatYouWillLearn })

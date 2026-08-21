@@ -2,6 +2,7 @@ import { z } from "zod";
 
 export const courseInfoSchema = z.object({
   title: z.string().min(3, "Title is too short").max(200),
+  slug: z.string().min(3, "URL slug is too short").max(200),
   subtitle: z.string().max(300).optional().nullable(),
   description: z.string().max(20000).optional().nullable(),
   price: z.coerce.number().int().min(0, "Price cannot be negative"),

@@ -36,6 +36,13 @@ export function CourseInfoForm({ course }: { course: Course }) {
           <Input id="title" name="title" defaultValue={course.title} required />
         </div>
         <div>
+          <Label htmlFor="slug">URL slug</Label>
+          <Input id="slug" name="slug" defaultValue={course.slug} required />
+          <p className="mt-1 text-xs text-ink-400">
+            Public URL: {process.env.NEXT_PUBLIC_SITE_URL ?? ""}/courses/{course.slug}
+          </p>
+        </div>
+        <div>
           <Label htmlFor="subtitle">Subtitle</Label>
           <Input id="subtitle" name="subtitle" defaultValue={course.subtitle ?? ""} />
         </div>

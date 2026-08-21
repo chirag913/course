@@ -5,9 +5,15 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-// price is stored in paise; render as rupees.
+// price is stored in paise; render as rupees. Shows "Free" for a zero
+// course price or order amount — use formatCurrency instead for aggregate
+// stats (e.g. total revenue), where "Free" would be a misleading label.
 export function formatPrice(paise: number, currency = "INR") {
   if (paise === 0) return "Free";
+  return formatCurrency(paise, currency);
+}
+
+export function formatCurrency(paise: number, currency = "INR") {
   return new Intl.NumberFormat("en-IN", {
     style: "currency",
     currency,

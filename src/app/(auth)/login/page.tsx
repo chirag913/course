@@ -29,13 +29,25 @@ function LoginForm() {
     setError(null);
     setLoading(true);
     const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    setLoading(false);
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
+      setLoading(false);
       setError(error.message === "Invalid login credentials" ? "Incorrect email or password." : error.message);
       return;
     }
-    router.push(searchParams.get("next") || "/dashboard");
+
+    const next = searchParams.get("next");
+    if (next) {
+      router.push(next);
+    } else {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", data.user.id)
+        .single();
+      router.push(profile?.role === "admin" ? "/admin" : "/dashboard");
+    }
+    setLoading(false);
     router.refresh();
   }
 
