@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input, Label, Textarea } from "@/components/ui/input";
 import { RichTextEditor } from "@/components/admin/rich-text-editor";
 import { ImageUploader } from "@/components/admin/image-uploader";
-import { updateCourseInfo, updateThumbnail } from "@/app/admin/courses/[courseId]/actions";
+import { updateCourseInfo, updateInstructorAvatar, updateThumbnail } from "@/app/admin/courses/[courseId]/actions";
 import type { Course } from "@/types/database";
 
 export function CourseInfoForm({ course }: { course: Course }) {
@@ -81,6 +81,15 @@ export function CourseInfoForm({ course }: { course: Course }) {
         <div>
           <Label htmlFor="instructor_bio">Instructor bio</Label>
           <Textarea id="instructor_bio" name="instructor_bio" rows={3} defaultValue={course.instructor_bio ?? ""} />
+        </div>
+        <div className="max-w-[160px]">
+          <Label>Instructor photo</Label>
+          <ImageUploader
+            value={course.instructor_avatar_url}
+            pathPrefix={`courses/${course.id}/instructor`}
+            aspectClassName="aspect-square"
+            onUploaded={(url) => startTransition(() => updateInstructorAvatar(course.id, url))}
+          />
         </div>
 
         {error && <p className="text-sm text-danger">{error}</p>}

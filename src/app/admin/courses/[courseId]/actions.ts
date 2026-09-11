@@ -55,6 +55,14 @@ export async function updateThumbnail(courseId: string, thumbnailUrl: string) {
   revalidateCourse(courseId);
 }
 
+export async function updateInstructorAvatar(courseId: string, avatarUrl: string) {
+  await requireAdmin();
+  const supabase = await createClient();
+  const { error } = await supabase.from("courses").update({ instructor_avatar_url: avatarUrl }).eq("id", courseId);
+  if (error) throw new Error("Could not save instructor photo.");
+  revalidateCourse(courseId);
+}
+
 // -------------------------------------------------------------- sections --
 export async function createSection(courseId: string, title: string) {
   await requireAdmin();
