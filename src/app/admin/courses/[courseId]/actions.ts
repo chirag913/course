@@ -6,6 +6,7 @@ import { requireAdmin } from "@/lib/auth";
 import { courseInfoSchema, sectionSchema, lessonSchema, testimonialSchema, faqSchema } from "@/lib/validations";
 import { getVideoProvider } from "@/lib/video";
 import { slugify } from "@/lib/utils";
+import { syncCourseProgram } from "@/lib/programs/sync-course";
 
 function revalidateCourse(courseId: string) {
   revalidatePath(`/admin/courses/${courseId}`);
@@ -39,11 +40,14 @@ export async function updateCourseInfo(courseId: string, formData: FormData) {
     throw new Error("That URL slug is already used by another course.");
   }
 
-  const { error } = await supabase
+  const { data: course, error } = await supabase
     .from("courses")
     .update({ ...parsed.data, what_you_will_learn: whatYouWillLearn })
-    .eq("id", courseId);
-  if (error) throw new Error("Could not save course info.");
+    .eq("id", courseId)
+    .select()
+    .single();
+  if (error || !course) throw new Error("Could not save course info.");
+  await syncCourseProgram(supabase, course);
   revalidateCourse(courseId);
 }
 

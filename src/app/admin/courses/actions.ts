@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { requireAdmin } from "@/lib/auth";
 import { slugify } from "@/lib/utils";
+import { syncCourseProgram } from "@/lib/programs/sync-course";
 
 async function uniqueSlug(base: string): Promise<string> {
   const supabase = await createClient();
@@ -33,6 +34,7 @@ export async function createCourse() {
     .single();
 
   if (error || !course) throw new Error("Could not create course.");
+  await syncCourseProgram(supabase, course);
   revalidatePath("/admin/courses");
   redirect(`/admin/courses/${course.id}`);
 }
@@ -64,6 +66,7 @@ export async function duplicateCourse(courseId: string) {
     .select()
     .single();
   if (error || !newCourse) throw new Error("Could not duplicate course.");
+  await syncCourseProgram(supabase, newCourse);
 
   const { data: sections } = await supabase
     .from("course_sections")
@@ -119,14 +122,17 @@ export async function duplicateCourse(courseId: string) {
 export async function togglePublish(courseId: string, publish: boolean) {
   await requireAdmin();
   const supabase = await createClient();
-  const { error } = await supabase
+  const { data: course, error } = await supabase
     .from("courses")
     .update({
       status: publish ? "published" : "draft",
       published_at: publish ? new Date().toISOString() : null,
     })
-    .eq("id", courseId);
-  if (error) throw new Error("Could not update course status.");
+    .eq("id", courseId)
+    .select()
+    .single();
+  if (error || !course) throw new Error("Could not update course status.");
+  await syncCourseProgram(supabase, course);
   revalidatePath("/admin/courses");
   revalidatePath(`/admin/courses/${courseId}`);
 }

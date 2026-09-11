@@ -51,8 +51,25 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       </aside>
 
       <div className="flex-1">
-        <header className="flex h-16 items-center justify-between border-b border-ink-300 bg-ink-100 px-4 sm:hidden">
-          <span className="font-display font-bold text-ink-900">Chirag Sharma Admin</span>
+        <header className="border-b border-ink-300 bg-ink-100 sm:hidden">
+          <div className="flex h-16 items-center justify-between px-4">
+            <span className="font-display font-bold text-ink-900">Chirag Sharma Admin</span>
+            <form action="/logout" method="post">
+              <button className="font-mono text-[11px] uppercase tracking-wide text-ink-500">Log out</button>
+            </form>
+          </div>
+          <nav className="flex flex-wrap gap-1 border-t border-ink-300 px-3 py-2">
+            {navItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium text-ink-600 transition-colors hover:bg-ink-200 hover:text-ink-900"
+              >
+                <item.icon className="h-3.5 w-3.5" />
+                {item.label}
+              </Link>
+            ))}
+          </nav>
         </header>
         <main className="mx-auto max-w-6xl px-4 py-8 sm:px-8">{children}</main>
       </div>

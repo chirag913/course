@@ -1,76 +1,97 @@
-import Link from "next/link";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-import { EmptyState } from "@/components/ui/empty-state";
-import { formatDate } from "@/lib/utils";
-import { Users } from "lucide-react";
+import { getEffectiveMentorshipStatus } from "@/lib/mentorship-access";
+import { StudentsList, type StudentRow } from "@/components/admin/students-list";
+import type { MentorshipProfile } from "@/types/database";
+
+type EnrollmentJoinRow = {
+  id: string;
+  user_id: string;
+  program_id: string;
+  enrolled_at: string;
+  programs: { id: string; title: string; type_id: string } | { id: string; title: string; type_id: string }[] | null;
+};
+
+function asSingle<T>(row: T | T[] | null): T | null {
+  if (!row) return null;
+  return Array.isArray(row) ? (row[0] ?? null) : row;
+}
 
 export default async function AdminStudentsPage() {
   const admin = createAdminClient();
   const supabase = await createClient();
 
-  const [{ data: userList }, { data: enrollments }] = await Promise.all([
+  const [{ data: userList }, { data: profiles }, { data: enrollments }] = await Promise.all([
     admin.auth.admin.listUsers({ perPage: 1000 }),
-    supabase.from("enrollments").select("user_id, course_id, enrolled_at, courses(title)"),
+    supabase.from("profiles").select("id, full_name, role, created_at").neq("role", "admin"),
+    supabase
+      .from("enrollments")
+      .select("id, user_id, program_id, enrolled_at, programs(id, title, type_id)")
+      .order("enrolled_at", { ascending: false }),
   ]);
 
-  const enrollmentsByUser = new Map<string, { count: number; latest: string }>();
-  for (const e of enrollments ?? []) {
-    const existing = enrollmentsByUser.get(e.user_id);
-    if (!existing || e.enrolled_at > existing.latest) {
-      enrollmentsByUser.set(e.user_id, { count: (existing?.count ?? 0) + 1, latest: e.enrolled_at });
-    } else {
-      enrollmentsByUser.set(e.user_id, { count: existing.count + 1, latest: existing.latest });
-    }
+  const enrollmentRows = (enrollments ?? []) as unknown as EnrollmentJoinRow[];
+  const mentorshipEnrollmentIds = enrollmentRows
+    .filter((e) => asSingle(e.programs)?.type_id === "mentorship")
+    .map((e) => e.id);
+
+  const { data: mentorshipProfiles } = mentorshipEnrollmentIds.length
+    ? await supabase.from("mentorship_profiles").select("*").in("enrollment_id", mentorshipEnrollmentIds)
+    : { data: [] as MentorshipProfile[] };
+
+  const accessByEnrollment = new Map((mentorshipProfiles ?? []).map((m) => [m.enrollment_id, m as MentorshipProfile]));
+  const emailById = new Map((userList?.users ?? []).map((u) => [u.id, u.email ?? ""]));
+
+  const enrollmentsByUser = new Map<string, EnrollmentJoinRow[]>();
+  for (const e of enrollmentRows) {
+    const list = enrollmentsByUser.get(e.user_id) ?? [];
+    list.push(e);
+    enrollmentsByUser.set(e.user_id, list);
   }
 
-  const { data: profiles } = await supabase.from("profiles").select("id, full_name, role").eq("role", "student");
-  const profileNames = new Map((profiles ?? []).map((p) => [p.id, p.full_name]));
+  const students: StudentRow[] = (profiles ?? []).map((p) => {
+    const userEnrollments = enrollmentsByUser.get(p.id) ?? [];
+    let phone: string | null = null;
+    let latestActivity: string | null = null;
 
-  const students = (userList?.users ?? [])
-    .filter((u) => profileNames.has(u.id))
-    .map((u) => ({
-      id: u.id,
-      email: u.email ?? "",
-      fullName: profileNames.get(u.id) ?? null,
-      courseCount: enrollmentsByUser.get(u.id)?.count ?? 0,
-      latestPurchase: enrollmentsByUser.get(u.id)?.latest ?? null,
-    }))
-    .sort((a, b) => b.courseCount - a.courseCount);
+    const programs = userEnrollments.map((e) => {
+      const program = asSingle(e.programs);
+      const access = accessByEnrollment.get(e.id) ?? null;
+      if (access?.whatsapp_phone && !phone) phone = access.whatsapp_phone;
+      if (!latestActivity || e.enrolled_at > latestActivity) latestActivity = e.enrolled_at;
+
+      return {
+        enrollmentId: e.id,
+        programId: program?.id ?? e.program_id,
+        title: program?.title ?? "Untitled program",
+        typeId: program?.type_id ?? "course",
+        effectiveStatus: access ? getEffectiveMentorshipStatus(access) : null,
+        enrolledAt: e.enrolled_at,
+      };
+    });
+
+    return {
+      id: p.id,
+      fullName: p.full_name,
+      email: emailById.get(p.id) ?? "",
+      phone,
+      joinedAt: p.created_at,
+      latestActivity,
+      programs,
+    };
+  });
+
+  students.sort((a, b) => (a.joinedAt < b.joinedAt ? 1 : -1));
 
   return (
     <div>
       <h1 className="font-display text-2xl font-bold tracking-tight text-ink-900">Students</h1>
+      <p className="mt-1 text-sm text-ink-500">
+        Every signed-up student appears here, whether or not they have a program yet.
+      </p>
 
       <div className="mt-6">
-        {students.length > 0 ? (
-          <div className="border-t border-ink-300">
-            <div className="divide-y divide-ink-300">
-              {students.map((student) => (
-                <Link
-                  key={student.id}
-                  href={`/admin/students/${student.id}`}
-                  className="flex items-center justify-between gap-4 py-4 transition-colors hover:bg-ink-100/60"
-                >
-                  <div>
-                    <p className="font-medium text-ink-900">{student.fullName ?? "Unnamed"}</p>
-                    <p className="text-sm text-ink-500">{student.email}</p>
-                  </div>
-                  <div className="text-right text-sm">
-                    <p className="font-medium text-ink-900">
-                      {student.courseCount} course{student.courseCount !== 1 ? "s" : ""}
-                    </p>
-                    {student.latestPurchase && (
-                      <p className="font-mono text-xs text-ink-500">Since {formatDate(student.latestPurchase)}</p>
-                    )}
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        ) : (
-          <EmptyState icon={Users} title="No students yet" description="Students will show up here once they enroll in a course." />
-        )}
+        <StudentsList students={students} />
       </div>
     </div>
   );
