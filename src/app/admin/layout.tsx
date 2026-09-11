@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { requireAdmin } from "@/lib/auth";
-import { LayoutDashboard, BookOpen, Users, Receipt, Settings } from "lucide-react";
+import { BookOpen, LayoutDashboard, Receipt, Settings, Users, UserRoundCog } from "lucide-react";
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/courses", label: "Courses", icon: BookOpen },
   { href: "/admin/students", label: "Students", icon: Users },
   { href: "/admin/orders", label: "Orders", icon: Receipt },
+  { href: "/admin/mentorship", label: "Mentorship", icon: UserRoundCog },
   { href: "/admin/settings", label: "Settings", icon: Settings },
 ];
 

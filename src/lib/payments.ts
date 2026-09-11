@@ -49,6 +49,7 @@ export async function confirmPayment(params: {
 
   await admin.from("order_items").insert({
     order_id: order.id,
+    program_id: order.program_id,
     course_id: order.course_id,
     price: order.amount,
   });
@@ -56,8 +57,8 @@ export async function confirmPayment(params: {
   await admin
     .from("enrollments")
     .upsert(
-      { user_id: order.user_id, course_id: order.course_id, order_id: order.id },
-      { onConflict: "user_id,course_id" }
+      { user_id: order.user_id, program_id: order.program_id, course_id: order.course_id, order_id: order.id },
+      { onConflict: "user_id,program_id" }
     );
 
   if (order.coupon_id) {
@@ -105,6 +106,6 @@ export async function markPaymentRefunded(razorpayPaymentId: string) {
       .from("enrollments")
       .delete()
       .eq("user_id", order.user_id)
-      .eq("course_id", order.course_id);
+      .eq("program_id", order.program_id);
   }
 }

@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CheckCircle2, Tag } from "lucide-react";
 import { siteConfig } from "@/lib/site-config";
-import type { Course } from "@/types/database";
 
 declare global {
   interface Window {
@@ -16,14 +15,58 @@ declare global {
   }
 }
 
+// The minimal shape any sellable program (course, mentorship, or a future
+// type) needs to expose for checkout — deliberately not `Course`, so this
+// component doesn't require a `courses` row to exist.
+export interface CheckoutProgram {
+  id: string;
+  slug: string;
+  title: string;
+  price: number;
+  currency: string;
+}
+
+const VERIFY_RETRY_DELAYS_MS = [0, 1000, 2000];
+
+// A dropped connection or a momentarily-unavailable server during the verify
+// call must not silently strand a payment Razorpay already captured — retry
+// a few times with short backoff before falling back to a manual-reconcile
+// message. The webhook remains the durable confirmation path; this only
+// covers the common transient case so the user isn't stuck for no reason.
+async function verifyPaymentWithRetry(response: {
+  razorpay_order_id: string;
+  razorpay_payment_id: string;
+  razorpay_signature: string;
+}): Promise<boolean> {
+  for (let attempt = 0; attempt < VERIFY_RETRY_DELAYS_MS.length; attempt++) {
+    const delay = VERIFY_RETRY_DELAYS_MS[attempt] ?? 0;
+    if (delay > 0) {
+      await new Promise((resolve) => setTimeout(resolve, delay));
+    }
+    try {
+      const verifyRes = await fetch("/api/checkout/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(response),
+      });
+      if (verifyRes.ok) return true;
+    } catch {
+      // Network/connection failure — fall through and retry.
+    }
+  }
+  return false;
+}
+
 export function CheckoutBox({
-  course,
+  program,
   isSignedIn,
   isEnrolled,
+  salesPath = "/courses",
 }: {
-  course: Course;
+  program: CheckoutProgram;
   isSignedIn: boolean;
   isEnrolled: boolean;
+  salesPath?: string;
 }) {
   const router = useRouter();
   const [couponCode, setCouponCode] = useState("");
@@ -38,7 +81,10 @@ export function CheckoutBox({
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ courseId: course.id, couponCode: couponCode || undefined }),
+        body: JSON.stringify({
+          programId: program.id,
+          couponCode: couponCode || undefined,
+        }),
       });
       const data = await res.json();
 
@@ -66,16 +112,15 @@ export function CheckoutBox({
           razorpay_payment_id: string;
           razorpay_signature: string;
         }) => {
-          const verifyRes = await fetch("/api/checkout/verify", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(response),
-          });
-          if (verifyRes.ok) {
+          const verified = await verifyPaymentWithRetry(response);
+          if (verified) {
             router.push("/dashboard?purchased=1");
             router.refresh();
           } else {
-            setError("Payment received but verification failed. Contact support with your payment ID.");
+            setError(
+              `Payment received but verification failed. Contact support with your payment ID: ${response.razorpay_payment_id}`
+            );
+            setLoading(false);
           }
         },
         modal: {
@@ -95,7 +140,7 @@ export function CheckoutBox({
       <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
 
       <div className="font-display text-3xl font-bold text-ink-900">
-        {formatPrice(course.price, course.currency)}
+        {formatPrice(program.price, program.currency)}
       </div>
 
       {isEnrolled ? (
@@ -138,7 +183,7 @@ export function CheckoutBox({
           <Button
             className="mt-4 w-full"
             size="lg"
-            onClick={() => router.push(`/signup?next=/courses/${course.slug}`)}
+            onClick={() => router.push(`/signup?next=${salesPath}/${program.slug}`)}
           >
             Sign up to get instant access
           </Button>
@@ -146,7 +191,7 @@ export function CheckoutBox({
             Already have an account?{" "}
             <button
               className="text-brand-300 hover:underline"
-              onClick={() => router.push(`/login?next=/courses/${course.slug}`)}
+              onClick={() => router.push(`/login?next=${salesPath}/${program.slug}`)}
             >
               Log in
             </button>

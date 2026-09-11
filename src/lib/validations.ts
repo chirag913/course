@@ -10,6 +10,19 @@ export const courseInfoSchema = z.object({
   instructor_bio: z.string().max(2000).optional().nullable(),
 });
 
+export const mentorshipProgramSchema = z.object({
+  title: z.string().min(3, "Title is too short").max(200),
+  slug: z.string().min(3, "URL slug is too short").max(200),
+  subtitle: z.string().max(300).optional().nullable(),
+  description: z.string().max(20000).optional().nullable(),
+  price: z.coerce.number().int().min(0, "Price cannot be negative"),
+  currency: z
+    .string()
+    .trim()
+    .length(3, "Use a 3-letter currency code")
+    .transform((s) => s.toUpperCase()),
+});
+
 export const sectionSchema = z.object({
   title: z.string().min(1, "Section title is required").max(200),
 });

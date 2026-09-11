@@ -19,7 +19,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
               href="/dashboard"
               className="whitespace-nowrap text-[11px] font-semibold uppercase tracking-widest2 text-ink-600 transition-colors hover:text-ink-900 sm:text-xs"
             >
-              My Courses
+              My Programs
             </Link>
             <Link
               href="/dashboard/profile"

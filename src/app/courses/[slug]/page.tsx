@@ -138,7 +138,7 @@ export default async function CourseSalesPage({ params }: Props) {
           </div>
 
           <div className="lg:sticky lg:top-24 lg:self-start">
-            <CheckoutBox course={course} isSignedIn={!!user} isEnrolled={isEnrolled} />
+            <CheckoutBox program={course} isSignedIn={!!user} isEnrolled={isEnrolled} />
           </div>
         </div>
       </section>
