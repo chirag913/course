@@ -158,3 +158,35 @@ export async function inviteStudent(fullName: string, email: string) {
   revalidatePath("/admin");
   return { userId: data.user.id };
 }
+
+// -------------------------------------------------------------- delete --
+// Every user-owned table in this schema cascades from auth.users through
+// profiles -> enrollments -> every mentorship/connection/product/economics/
+// shipping/decision table (verified by reading every migration, not
+// assumed) — so deleting the auth user is both correct and complete. The
+// only non-cascading FKs are authorship references (created_by, paused_by,
+// author_id), which correctly SET NULL and point at admins, not students.
+export async function deleteStudentAccount(userId: string, confirmEmail: string) {
+  const admin = await requireAdmin();
+  if (userId === admin.id) throw new Error("You cannot delete your own account.");
+
+  const supabase = await createClient();
+  const { data: targetProfile } = await supabase.from("profiles").select("role").eq("id", userId).maybeSingle();
+  if (!targetProfile) throw new Error("Student not found.");
+  if (targetProfile.role === "admin") throw new Error("Cannot delete an admin account through this action.");
+
+  const adminClient = createAdminClient();
+  const { data: targetUser } = await adminClient.auth.admin.getUserById(userId);
+  if (!targetUser?.user) throw new Error("Student not found.");
+
+  const actualEmail = targetUser.user.email ?? "";
+  if (!actualEmail || confirmEmail.trim() !== actualEmail) {
+    throw new Error("The email you typed doesn't match this student's email exactly.");
+  }
+
+  const { error } = await adminClient.auth.admin.deleteUser(userId);
+  if (error) throw new Error("Could not delete this student's account.");
+
+  revalidatePath("/admin/students");
+  revalidatePath("/admin");
+}

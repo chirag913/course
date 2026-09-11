@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { MentorshipAccessPanel } from "@/components/admin/mentorship-access-panel";
 import { MentorshipPaymentsPanel } from "@/components/admin/mentorship-payments-panel";
 import { AssignProgramForm } from "@/components/admin/assign-program-form";
+import { DeleteStudentButton } from "@/components/admin/delete-student-button";
 import { ArrowLeft, MessageCircle } from "lucide-react";
 import type { MentorshipPayment, MentorshipProfile } from "@/types/database";
 
@@ -108,14 +109,22 @@ export default async function AdminStudentDetailPage({ params }: Props) {
           <p className="text-sm text-ink-500">{userResult.user.email}</p>
           <p className="mt-1 font-mono text-xs text-ink-500">Joined {formatDate(profile.created_at)}</p>
         </div>
-        {whatsappUrl && (
-          <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
-            <Button variant="outline" size="sm">
-              <MessageCircle className="h-4 w-4" />
-              WhatsApp
-            </Button>
-          </a>
-        )}
+        <div className="flex items-center gap-2">
+          {whatsappUrl && (
+            <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
+              <Button variant="outline" size="sm">
+                <MessageCircle className="h-4 w-4" />
+                WhatsApp
+              </Button>
+            </a>
+          )}
+          <DeleteStudentButton
+            userId={studentId}
+            email={userResult.user.email ?? ""}
+            fullName={profile.full_name}
+            redirectAfterDelete="/admin/students"
+          />
+        </div>
       </div>
 
       <div className="mt-10 border-t border-ink-300 pt-6">

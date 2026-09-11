@@ -27,57 +27,48 @@ export default async function AdminDashboardPage() {
   const supabase = await createClient();
   const admin = createAdminClient();
 
-  const [{ count: courseCount }, { data: paidOrders }, { data: enrollmentUsers }] = await Promise.all([
+  const [{ count: courseCount }, { data: paidOrders }, { data: allProfiles }, { data: userList }] = await Promise.all([
     supabase.from("courses").select("*", { count: "exact", head: true }),
     supabase.from("orders").select("amount").eq("status", "paid"),
-    supabase.from("enrollments").select("user_id"),
+    supabase.from("profiles").select("id, full_name, created_at").neq("role", "admin").order("created_at", { ascending: false }),
+    admin.auth.admin.listUsers({ perPage: 1000 }),
   ]);
 
   const totalRevenue = (paidOrders ?? []).reduce((sum, o) => sum + o.amount, 0);
   const totalSales = (paidOrders ?? []).length;
-  const totalStudents = new Set((enrollmentUsers ?? []).map((e) => e.user_id)).size;
-
-  const [{ data: recentOrders }, { data: recentProfiles }, { data: userList }] = await Promise.all([
-    supabase
-      .from("orders")
-      .select("id, amount, currency, created_at, profiles(full_name), courses(title)")
-      .eq("status", "paid")
-      .order("created_at", { ascending: false })
-      .limit(8),
-    supabase
-      .from("profiles")
-      .select("id, full_name, created_at")
-      .neq("role", "admin")
-      .order("created_at", { ascending: false })
-      .limit(6),
-    admin.auth.admin.listUsers({ perPage: 1000 }),
-  ]);
-
   const emailById = new Map((userList?.users ?? []).map((u) => [u.id, u.email ?? ""]));
-  const recentProfileIds = (recentProfiles ?? []).map((p) => p.id);
 
-  const { data: recentEnrollments } = recentProfileIds.length
-    ? await supabase
-        .from("enrollments")
-        .select("id, user_id, enrolled_at, programs(title, type_id)")
-        .in("user_id", recentProfileIds)
-        .order("enrolled_at", { ascending: false })
-    : { data: [] as never[] };
+  const { data: recentOrders } = await supabase
+    .from("orders")
+    .select("id, amount, currency, created_at, profiles(full_name), courses(title)")
+    .eq("status", "paid")
+    .order("created_at", { ascending: false })
+    .limit(8);
 
-  const enrollmentByUser = new Map<string, { id: string; title: string; typeId: string }>();
-  for (const e of (recentEnrollments ?? []) as unknown as Array<{
+  const { data: allEnrollments } = await supabase
+    .from("enrollments")
+    .select("id, user_id, enrolled_at, programs(title, type_id)")
+    .order("enrolled_at", { ascending: false });
+
+  const enrollmentRows = (allEnrollments ?? []) as unknown as Array<{
     id: string;
     user_id: string;
+    enrolled_at: string;
     programs: ProgramJoin | ProgramJoin[];
-  }>) {
-    if (enrollmentByUser.has(e.user_id)) continue;
+  }>;
+
+  const enrollmentsByUser = new Map<string, Array<{ id: string; title: string; typeId: string }>>();
+  for (const e of enrollmentRows) {
     const program = asSingle(e.programs);
-    if (program) enrollmentByUser.set(e.user_id, { id: e.id, title: program.title, typeId: program.type_id });
+    if (!program) continue;
+    const list = enrollmentsByUser.get(e.user_id) ?? [];
+    list.push({ id: e.id, title: program.title, typeId: program.type_id });
+    enrollmentsByUser.set(e.user_id, list);
   }
 
-  const mentorshipEnrollmentIds = [...enrollmentByUser.entries()]
-    .filter(([, v]) => v.typeId === "mentorship")
-    .map(([, v]) => v.id);
+  const mentorshipEnrollmentIds = enrollmentRows
+    .filter((e) => asSingle(e.programs)?.type_id === "mentorship")
+    .map((e) => e.id);
   const { data: mentorshipProfiles } = mentorshipEnrollmentIds.length
     ? await supabase.from("mentorship_profiles").select("*").in("enrollment_id", mentorshipEnrollmentIds)
     : { data: [] as MentorshipProfile[] };
@@ -85,11 +76,42 @@ export default async function AdminDashboardPage() {
     (mentorshipProfiles ?? []).map((m) => [m.enrollment_id, getEffectiveMentorshipStatus(m as MentorshipProfile)])
   );
 
+  let notEnrolledCount = 0;
+  let mentorshipCount = 0;
+  let coursesCount = 0;
+  let activeCount = 0;
+  for (const p of allProfiles ?? []) {
+    const userEnrollments = enrollmentsByUser.get(p.id) ?? [];
+    if (userEnrollments.length === 0) {
+      notEnrolledCount++;
+      continue;
+    }
+    if (userEnrollments.some((e) => e.typeId === "mentorship")) mentorshipCount++;
+    if (userEnrollments.some((e) => e.typeId === "course")) coursesCount++;
+    if (userEnrollments.some((e) => e.typeId === "mentorship" && statusByEnrollment.get(e.id) === "active")) {
+      activeCount++;
+    }
+  }
+
+  const totalStudents = (allProfiles ?? []).length;
+  const recentProfiles = (allProfiles ?? []).slice(0, 6);
+  const enrollmentByUser = new Map(
+    [...enrollmentsByUser.entries()].map(([userId, list]) => [userId, list[0]!])
+  );
+
   const stats = [
     { label: "Total Revenue", value: formatCurrency(totalRevenue), icon: IndianRupee },
     { label: "Total Students", value: totalStudents, icon: Users },
     { label: "Total Courses", value: courseCount ?? 0, icon: BookOpen },
     { label: "Total Sales", value: totalSales, icon: ShoppingCart },
+  ];
+
+  const overview = [
+    { label: "Total Students", value: totalStudents },
+    { label: "Not Enrolled", value: notEnrolledCount },
+    { label: "Active Students", value: activeCount },
+    { label: "Mentorship", value: mentorshipCount },
+    { label: "Courses", value: coursesCount },
   ];
 
   return (
@@ -116,8 +138,18 @@ export default async function AdminDashboardPage() {
         ))}
       </div>
 
+      <p className="eyebrow mt-10">Student Overview</p>
+      <div className="mt-4 grid grid-cols-2 divide-x divide-y divide-ink-300 border border-ink-300 sm:grid-cols-3 lg:grid-cols-5 lg:divide-y-0">
+        {overview.map((stat) => (
+          <div key={stat.label} className="p-4">
+            <p className="font-mono text-[11px] uppercase tracking-wide text-ink-500">{stat.label}</p>
+            <p className="mt-1 font-display text-xl font-bold text-ink-900">{stat.value}</p>
+          </div>
+        ))}
+      </div>
+
       <div className="mt-10 flex items-center justify-between">
-        <p className="eyebrow">Recent Students</p>
+        <p className="eyebrow">New Signups</p>
         <Link href="/admin/students" className="text-sm font-medium text-brand-300 hover:underline">
           View all →
         </Link>

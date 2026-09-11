@@ -1,6 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-import { getEffectiveMentorshipStatus } from "@/lib/mentorship-access";
+import { getEffectiveMentorshipStatus, getRemainingDays } from "@/lib/mentorship-access";
 import { StudentsList, type StudentRow } from "@/components/admin/students-list";
 import type { MentorshipProfile } from "@/types/database";
 
@@ -66,6 +66,7 @@ export default async function AdminStudentsPage() {
         title: program?.title ?? "Untitled program",
         typeId: program?.type_id ?? "course",
         effectiveStatus: access ? getEffectiveMentorshipStatus(access) : null,
+        remainingDays: access ? getRemainingDays(access) : null,
         enrolledAt: e.enrolled_at,
       };
     });
