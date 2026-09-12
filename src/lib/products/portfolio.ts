@@ -29,6 +29,7 @@ export interface ProductPortfolioEntry {
   contributionProfit: number | null;
   rtoRate: number | null;
   revenue: number;
+  ordersCount: number;
   adSpend: number | null;
   shopifyMapped: boolean;
   metaMapped: boolean;
@@ -107,6 +108,7 @@ export async function getProductPortfolio(
         contributionProfit: contribution.contributionProfit,
         rtoRate: fulfillment.rates.rtoRate,
         revenue: metrics.shopify.revenue,
+        ordersCount: metrics.shopify.ordersCount,
         adSpend: metrics.meta.spend,
         shopifyMapped: metrics.shopifyMapped,
         metaMapped: metrics.metaMapped,

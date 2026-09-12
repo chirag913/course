@@ -15,6 +15,7 @@ export interface AccountEconomicsSummary {
   productsWithIncompleteEconomics: number;
   totalAdSpend: number;
   totalOrders: number;
+  totalShipped: number;
   totalDelivered: number;
   totalNdr: number;
   totalRto: number;
@@ -48,6 +49,7 @@ export async function getAccountEconomicsSummary(
 
   let totalAdSpend = 0;
   let totalOrders = 0;
+  let totalShipped = 0;
   let totalDelivered = 0;
   let totalNdr = 0;
   let totalRto = 0;
@@ -66,6 +68,7 @@ export async function getAccountEconomicsSummary(
     totalOrders += metrics.shopify.ordersCount;
     totalRevenue += metrics.shopify.revenue;
     totalAdSpend += metrics.meta.spend ?? 0;
+    totalShipped += fulfillment.counts.shipped;
     totalDelivered += fulfillment.counts.delivered;
     totalNdr += fulfillment.counts.ndr;
     totalRto += fulfillment.counts.rto;
@@ -92,6 +95,7 @@ export async function getAccountEconomicsSummary(
     productsWithIncompleteEconomics: incompleteCount,
     totalAdSpend,
     totalOrders,
+    totalShipped,
     totalDelivered,
     totalNdr,
     totalRto,

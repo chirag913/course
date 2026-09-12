@@ -50,7 +50,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         </div>
       </aside>
 
-      <div className="flex-1">
+      <div className="min-w-0 flex-1">
         <header className="border-b border-ink-300 bg-ink-100 sm:hidden">
           <div className="flex h-16 items-center justify-between px-4">
             <span className="font-display font-bold text-ink-900">Chirag Sharma Admin</span>
