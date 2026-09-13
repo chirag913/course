@@ -23,6 +23,7 @@ export interface Course {
   id: string;
   slug: string;
   title: string;
+  display_order: number;
   subtitle: string | null;
   description: string | null;
   thumbnail_url: string | null;

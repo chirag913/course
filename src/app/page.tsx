@@ -5,7 +5,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
-import { formatPrice, formatDuration } from "@/lib/utils";
+import { formatPrice } from "@/lib/utils";
 import { ArrowRight, BookOpen, Youtube, Instagram } from "lucide-react";
 import type { Course } from "@/types/database";
 
@@ -22,20 +22,8 @@ export default async function HomePage() {
     .from("courses")
     .select("*")
     .eq("status", "published")
-    .order("published_at", { ascending: false });
-
-  const [featured, ...otherCourses] = (courses ?? []) as Course[];
-
-  let lessonCount = 0;
-  let totalDuration = 0;
-  if (featured) {
-    const { data: curriculum } = await supabase
-      .from("public_curriculum")
-      .select("duration_seconds")
-      .eq("course_id", featured.id);
-    lessonCount = curriculum?.length ?? 0;
-    totalDuration = (curriculum ?? []).reduce((sum, l) => sum + l.duration_seconds, 0);
-  }
+    .order("display_order", { ascending: true })
+    .order("created_at", { ascending: false });
 
   return (
     <div className="min-h-screen bg-ink-50">
@@ -57,8 +45,8 @@ export default async function HomePage() {
             businesses — not theory recorded once and left online.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-4">
-            {featured && (
-              <Link href={`/courses/${featured.slug}`}>
+            {(courses ?? []).length > 0 && (
+              <Link href="#courses">
                 <Button size="lg">
                   Explore Courses <ArrowRight className="h-4 w-4" />
                 </Button>
@@ -91,99 +79,53 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Featured course */}
+      {/* Courses */}
       <main className="mx-auto max-w-6xl px-4 py-20 sm:px-6">
-        {featured ? (
-          <section>
-            <p className="eyebrow">Featured Course</p>
-            <div className="mt-6 grid gap-10 border-t border-ink-300 pt-8 lg:grid-cols-[1fr_1.2fr] lg:items-center">
-              <Link
-                href={`/courses/${featured.slug}`}
-                className="group relative block aspect-video w-full overflow-hidden rounded-md border border-ink-300 bg-ink-100"
-              >
-                {featured.thumbnail_url && (
-                  <Image
-                    src={featured.thumbnail_url}
-                    alt={featured.title}
-                    fill
-                    className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
-                    priority
-                  />
-                )}
-              </Link>
-              <div>
-                <span className="font-mono text-xs text-ink-500">01</span>
-                <h2 className="mt-2 font-display text-3xl font-bold tracking-tight text-ink-900 sm:text-4xl">
-                  {featured.title}
-                </h2>
-                {featured.subtitle && <p className="mt-3 text-ink-500">{featured.subtitle}</p>}
-
-                {featured.what_you_will_learn.length > 0 && (
-                  <ul className="mt-5 space-y-1.5">
-                    {featured.what_you_will_learn.slice(0, 4).map((point, i) => (
-                      <li key={i} className="flex items-start gap-2 text-sm text-ink-700">
-                        <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-brand-400" />
-                        {point}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-
-                <p className="mt-5 font-mono text-xs uppercase tracking-wide text-ink-500">
-                  {lessonCount} Lessons · {formatDuration(totalDuration)} · Lifetime Access
-                </p>
-
-                <div className="mt-6 flex items-center gap-5">
-                  <span className="font-display text-2xl font-bold text-ink-900">
-                    {formatPrice(featured.price, featured.currency)}
-                  </span>
-                  <Link href={`/courses/${featured.slug}`}>
-                    <Button>
-                      Get Instant Access <ArrowRight className="h-4 w-4" />
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </section>
-        ) : (
-          <EmptyState
-            icon={BookOpen}
-            title="Nothing here yet."
-            description="Courses will appear here as soon as they're published."
-          />
-        )}
-
-        {otherCourses.length > 0 && (
-          <section className="mt-20">
-            <p className="eyebrow">More Courses</p>
-            <div className="mt-6 divide-y divide-ink-300 border-t border-ink-300">
-              {otherCourses.map((course, i) => (
+        <section id="courses">
+          <p className="eyebrow">COURSES</p>
+          {(courses ?? []).length > 0 ? (
+            <div className="mt-6 grid gap-6 sm:grid-cols-2">
+              {(courses as Course[]).map((course) => (
                 <Link
                   key={course.id}
                   href={`/courses/${course.slug}`}
-                  className="group flex items-center justify-between gap-6 py-5"
+                  className="group block border border-ink-300 p-4 transition-colors hover:bg-ink-100 sm:p-5"
                 >
-                  <div className="flex items-center gap-4 min-w-0">
-                    <span className="font-mono text-xs text-ink-500">{String(i + 2).padStart(2, "0")}</span>
-                    <div className="min-w-0">
-                      <h3 className="truncate font-display font-semibold text-ink-900">{course.title}</h3>
-                      {course.subtitle && (
-                        <p className="truncate text-sm text-ink-500">{course.subtitle}</p>
-                      )}
-                    </div>
+                  <div className="relative aspect-video w-full overflow-hidden rounded-md border border-ink-300 bg-ink-100">
+                    {course.thumbnail_url && (
+                      <Image
+                        src={course.thumbnail_url}
+                        alt={course.title}
+                        fill
+                        className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                        priority={course.display_order === 1}
+                      />
+                    )}
                   </div>
-                  <div className="flex shrink-0 items-center gap-4">
-                    <span className="font-mono text-sm text-brand-300">
+
+                  <h2 className="mt-3 font-display text-2xl font-bold tracking-tight text-ink-900 sm:text-3xl">
+                    {course.title}
+                  </h2>
+                  {course.subtitle && <p className="mt-2 text-sm text-ink-500">{course.subtitle}</p>}
+
+                  <div className="mt-4 flex items-center justify-between">
+                    <span className="font-display text-lg font-bold text-ink-900">
                       {formatPrice(course.price, course.currency)}
                     </span>
-                    <ArrowRight className="h-4 w-4 text-ink-500 transition-transform group-hover:translate-x-1" />
+                    <ArrowRight className="h-4 w-4 text-brand-300 transition-transform group-hover:translate-x-1" />
                   </div>
                 </Link>
               ))}
             </div>
-          </section>
-        )}
+          ) : (
+            <EmptyState
+              icon={BookOpen}
+              title="Nothing here yet."
+              description="Courses will appear here as soon as they're published."
+              action={null}
+            />
+          )}
+        </section>
       </main>
 
       {/* About */}
@@ -248,23 +190,21 @@ export default async function HomePage() {
       </section>
 
       {/* Final CTA */}
-      {featured && (
-        <section className="border-t border-ink-300">
-          <div className="mx-auto max-w-6xl px-4 py-20 text-center sm:px-6">
-            <h2 className="font-display text-3xl font-bold tracking-tight text-ink-900 sm:text-4xl">
-              Ready to stop guessing?
-            </h2>
-            <p className="mx-auto mt-3 max-w-md text-ink-500">
-              Structure, not scattered information. Start with {featured.title}.
-            </p>
-            <Link href={`/courses/${featured.slug}`}>
-              <Button size="lg" className="mt-6">
-                Explore Courses <ArrowRight className="h-4 w-4" />
-              </Button>
-            </Link>
-          </div>
-        </section>
-      )}
+      <section className="border-t border-ink-300">
+        <div className="mx-auto max-w-6xl px-4 py-20 text-center sm:px-6">
+          <h2 className="font-display text-3xl font-bold tracking-tight text-ink-900 sm:text-4xl">
+            Ready to stop guessing?
+          </h2>
+          <p className="mx-auto mt-3 max-w-md text-ink-500">
+            Structure, not scattered information. Start with the latest course from this list.
+          </p>
+          <Link href="#courses">
+            <Button size="lg" className="mt-6">
+              Explore Courses <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
+        </div>
+      </section>
 
       <SiteFooter />
     </div>

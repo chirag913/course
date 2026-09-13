@@ -22,14 +22,27 @@ async function uniqueSlug(base: string): Promise<string> {
   }
 }
 
+async function getNextCourseDisplayOrder(): Promise<number> {
+  const supabase = await createClient();
+  const { data: latestCourse } = await supabase
+    .from("courses")
+    .select("display_order")
+    .order("display_order", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  return (latestCourse?.display_order ?? 0) + 1;
+}
+
 export async function createCourse() {
   const admin = await requireAdmin();
   const supabase = await createClient();
   const slug = await uniqueSlug("untitled-course");
+  const displayOrder = await getNextCourseDisplayOrder();
 
   const { data: course, error } = await supabase
     .from("courses")
-    .insert({ title: "Untitled Course", slug, created_by: admin.id })
+    .insert({ title: "Untitled Course", slug, display_order: displayOrder, created_by: admin.id })
     .select()
     .single();
 
@@ -47,6 +60,7 @@ export async function duplicateCourse(courseId: string) {
   if (!course) throw new Error("Course not found.");
 
   const slug = await uniqueSlug(`${course.title}-copy`);
+  const displayOrder = await getNextCourseDisplayOrder();
   const { data: newCourse, error } = await supabase
     .from("courses")
     .insert({
@@ -62,6 +76,7 @@ export async function duplicateCourse(courseId: string) {
       instructor_name: course.instructor_name,
       instructor_bio: course.instructor_bio,
       instructor_avatar_url: course.instructor_avatar_url,
+      display_order: displayOrder,
     })
     .select()
     .single();
@@ -146,5 +161,23 @@ export async function deleteCourse(courseId: string) {
       "Couldn't delete this course — it already has orders on record. Unpublish it instead to hide it from students."
     );
   }
+  revalidatePath("/admin/courses");
+}
+
+export async function reorderCourses(courseIds: string[]) {
+  await requireAdmin();
+  const supabase = await createClient();
+
+  const normalizedIds = [...new Set(courseIds.filter((id) => typeof id === "string" && id.trim().length > 0))];
+  for (let index = 0; index < normalizedIds.length; index += 1) {
+    const id = normalizedIds[index];
+    const { error } = await supabase
+      .from("courses")
+      .update({ display_order: index + 1 })
+      .eq("id", id);
+
+    if (error) throw new Error("Could not save course order.");
+  }
+
   revalidatePath("/admin/courses");
 }
