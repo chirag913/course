@@ -9,6 +9,12 @@ import { formatPrice } from "@/lib/utils";
 import { ArrowRight, BookOpen, Youtube, Instagram } from "lucide-react";
 import type { Course } from "@/types/database";
 
+type HomeCourse = Course & { display_order?: number | null };
+
+function isMissingDisplayOrderColumn(error: { code?: string | null } | null | undefined) {
+  return error?.code === "42703";
+}
+
 const STATS = [
   { value: "₹30Cr+", label: "Revenue Generated" },
   { value: "8+ Years", label: "Operating" },
@@ -18,12 +24,29 @@ const STATS = [
 
 export default async function HomePage() {
   const supabase = await createClient();
-  const { data: courses } = await supabase
+  const { data: orderedCourses, error: orderedCoursesError } = await supabase
     .from("courses")
     .select("*")
     .eq("status", "published")
     .order("display_order", { ascending: true })
     .order("created_at", { ascending: false });
+  let courses: HomeCourse[];
+  if (orderedCoursesError && !isMissingDisplayOrderColumn(orderedCoursesError)) {
+    throw orderedCoursesError;
+  }
+
+  if (!orderedCoursesError) {
+    courses = orderedCourses ?? [];
+  } else {
+    const { data: fallbackCourses, error: fallbackCoursesError } = await supabase
+      .from("courses")
+      .select("*")
+      .eq("status", "published")
+      .order("published_at", { ascending: false })
+      .order("created_at", { ascending: false });
+    if (fallbackCoursesError) throw fallbackCoursesError;
+    courses = fallbackCourses ?? [];
+  }
 
   return (
     <div className="min-h-screen bg-ink-50">
@@ -85,7 +108,7 @@ export default async function HomePage() {
           <p className="eyebrow">COURSES</p>
           {(courses ?? []).length > 0 ? (
             <div className="mt-6 grid gap-6 sm:grid-cols-2">
-              {(courses as Course[]).map((course) => (
+              {courses.map((course) => (
                 <Link
                   key={course.id}
                   href={`/courses/${course.slug}`}

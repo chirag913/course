@@ -5,13 +5,31 @@ import { createCourse } from "./actions";
 import { CourseOrderManager } from "./course-order-manager";
 import type { Course } from "@/types/database";
 
+function isMissingDisplayOrderColumn(error: { code?: string | null } | null | undefined) {
+  return error?.code === "42703";
+}
+
 export default async function AdminCoursesPage() {
   const supabase = await createClient();
-  const { data: courses } = await supabase
+  const { data: orderedCourses, error: orderedCoursesError } = await supabase
     .from("courses")
     .select("*")
     .order("display_order", { ascending: true })
     .order("created_at", { ascending: false });
+  let courses: Course[];
+  if (orderedCoursesError && !isMissingDisplayOrderColumn(orderedCoursesError)) {
+    throw orderedCoursesError;
+  }
+  if (!orderedCoursesError) {
+    courses = orderedCourses ?? [];
+  } else {
+    const { data: fallbackCourses, error: fallbackCoursesError } = await supabase
+      .from("courses")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (fallbackCoursesError) throw fallbackCoursesError;
+    courses = fallbackCourses ?? [];
+  }
 
   const { data: enrollments } = await supabase.from("enrollments").select("course_id");
   const studentCounts: Record<string, number> = {};
