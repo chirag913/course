@@ -107,6 +107,7 @@ export async function POST(request: Request) {
   const { originalAmount, discountAmount, finalAmount } = applyCoupon(program.price, coupon);
 
   const courseIdForWrite = isCourseProgram ? program.id : null;
+  const razorpayKeyId = process.env.RAZORPAY_KEY_ID ?? process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
 
   // Razorpay requires a positive amount for a payment order. A 100%-off
   // coupon grants enrollment directly without touching Razorpay at all.
@@ -150,25 +151,30 @@ export async function POST(request: Request) {
     return NextResponse.json({ free: true });
   }
 
-  const razorpay = getRazorpayClient();
-  const razorpayOrder = await razorpay.orders.create({
-    amount: finalAmount,
-    currency: program.currency,
-    // Razorpay caps receipt at 56 chars — user/program context is already
-    // captured in `notes` below, so this just needs to be unique.
-    receipt: `rcpt_${Date.now()}`,
-    notes: {
-      program_id: program.id,
-      ...(courseIdForWrite ? { course_id: courseIdForWrite } : {}),
-      user_id: user.id,
-    },
-    // Without this, a successful card payment sits in "authorized" status
-    // until the account's dashboard-level capture settings (or a manual
-    // capture call) promote it to "captured" — and neither our fast-path
-    // verify nor the webhook fire for "authorized". Forcing capture here
-    // makes checkout behave the same regardless of account defaults.
-    payment_capture: true,
-  });
+  let razorpayOrder: { id: string };
+  try {
+    const razorpay = getRazorpayClient();
+    razorpayOrder = await razorpay.orders.create({
+      amount: finalAmount,
+      currency: program.currency,
+      // Razorpay caps receipt at 56 chars — user/program context is already
+      // captured in `notes` below, so this just needs to be unique.
+      receipt: `rcpt_${Date.now()}`,
+      notes: {
+        program_id: program.id,
+        ...(courseIdForWrite ? { course_id: courseIdForWrite } : {}),
+        user_id: user.id,
+      },
+      // Without this, a successful card payment sits in "authorized" status
+      // until the account's dashboard-level capture settings (or a manual
+      // capture call) promote it to "captured" — and neither our fast-path
+      // verify nor the webhook fire for "authorized". Forcing capture here
+      // makes checkout behave the same regardless of account defaults.
+      payment_capture: true,
+    });
+  } catch {
+    return NextResponse.json({ error: "Payment provider is not configured. Please contact support." }, { status: 503 });
+  }
 
   const { data: order, error: orderError } = await supabase
     .from("orders")
@@ -198,7 +204,7 @@ export async function POST(request: Request) {
     originalAmount,
     discountAmount,
     currency: program.currency,
-    keyId: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+    keyId: razorpayKeyId,
     courseName: program.title,
   });
 }
