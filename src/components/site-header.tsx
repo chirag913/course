@@ -16,7 +16,7 @@ export async function SiteHeader() {
         </Link>
         <nav className="flex items-center gap-3 sm:gap-5">
           <Link
-            href="/"
+            href={user ? "/" : "/#courses"}
             className="hidden whitespace-nowrap text-xs font-semibold uppercase tracking-widest2 text-ink-600 transition-colors hover:text-ink-900 sm:inline"
           >
             Courses
@@ -56,7 +56,7 @@ export async function SiteHeader() {
                 Log in
               </Link>
               <Link href="/signup">
-                <Button size="sm">Sign up</Button>
+                <Button size="sm">Get Started</Button>
               </Link>
             </>
           )}
