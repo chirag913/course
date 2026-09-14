@@ -2,11 +2,20 @@ import "server-only";
 import Razorpay from "razorpay";
 import crypto from "crypto";
 
+function normalizeEnv(value?: string): string | undefined {
+  if (!value) return undefined;
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : undefined;
+}
+
 // Server-only Razorpay client. RAZORPAY_KEY_SECRET must never reach the
 // browser bundle — the `server-only` import enforces that at build time.
 export function getRazorpayClient() {
-  const keyId = process.env.RAZORPAY_KEY_ID ?? process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
-  const keySecret = process.env.RAZORPAY_KEY_SECRET;
+  const keyId = normalizeEnv(process.env.RAZORPAY_KEY_ID)
+    ?? normalizeEnv(process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID)
+    ?? normalizeEnv(process.env.RAZORPAY_KEY)
+    ?? normalizeEnv(process.env.NEXT_PUBLIC_RAZORPAY_KEY);
+  const keySecret = normalizeEnv(process.env.RAZORPAY_KEY_SECRET) ?? normalizeEnv(process.env.NEXT_PUBLIC_RAZORPAY_KEY_SECRET);
   if (!keyId || !keySecret) {
     throw new Error("Razorpay credentials are not configured.");
   }
@@ -26,9 +35,12 @@ export function verifyPaymentSignature(params: {
   paymentId: string;
   signature: string;
 }): boolean {
-  if (!process.env.RAZORPAY_KEY_SECRET) return false;
+  if (!normalizeEnv(process.env.RAZORPAY_KEY_SECRET) && !normalizeEnv(process.env.NEXT_PUBLIC_RAZORPAY_KEY_SECRET)) return false;
   const expected = crypto
-    .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET!)
+    .createHmac(
+      "sha256",
+      normalizeEnv(process.env.RAZORPAY_KEY_SECRET) ?? normalizeEnv(process.env.NEXT_PUBLIC_RAZORPAY_KEY_SECRET) ?? ""
+    )
     .update(`${params.orderId}|${params.paymentId}`)
     .digest("hex");
   return timingSafeEqual(expected, params.signature);

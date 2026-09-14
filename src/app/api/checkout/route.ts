@@ -6,6 +6,15 @@ import { getRazorpayClient } from "@/lib/razorpay";
 import { applyCoupon, isCouponValid } from "@/lib/pricing";
 import type { Coupon, Course, Program } from "@/types/database";
 
+function resolveServerRazorpayKeyId(): string | undefined {
+  return (
+    process.env.RAZORPAY_KEY_ID ??
+    process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID ??
+    process.env.RAZORPAY_KEY ??
+    process.env.NEXT_PUBLIC_RAZORPAY_KEY
+  );
+}
+
 const bodySchema = z.object({
   programId: z.string().uuid().optional(),
   courseId: z.string().uuid().optional(),
@@ -107,7 +116,7 @@ export async function POST(request: Request) {
   const { originalAmount, discountAmount, finalAmount } = applyCoupon(program.price, coupon);
 
   const courseIdForWrite = isCourseProgram ? program.id : null;
-  const razorpayKeyId = process.env.RAZORPAY_KEY_ID ?? process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
+  const razorpayKeyId = resolveServerRazorpayKeyId();
 
   // Razorpay requires a positive amount for a payment order. A 100%-off
   // coupon grants enrollment directly without touching Razorpay at all.
