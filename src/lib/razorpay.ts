@@ -14,8 +14,14 @@ export function getRazorpayClient() {
   const keyId = normalizeEnv(process.env.RAZORPAY_KEY_ID)
     ?? normalizeEnv(process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID)
     ?? normalizeEnv(process.env.RAZORPAY_KEY)
-    ?? normalizeEnv(process.env.NEXT_PUBLIC_RAZORPAY_KEY);
-  const keySecret = normalizeEnv(process.env.RAZORPAY_KEY_SECRET) ?? normalizeEnv(process.env.NEXT_PUBLIC_RAZORPAY_KEY_SECRET);
+    ?? normalizeEnv(process.env.NEXT_PUBLIC_RAZORPAY_KEY)
+    ?? normalizeEnv(process.env.RAZORPAY_LIVE_KEY_ID)
+    ?? normalizeEnv(process.env.RAZORPAY_TEST_KEY_ID);
+  const keySecret =
+    normalizeEnv(process.env.RAZORPAY_KEY_SECRET) ??
+    normalizeEnv(process.env.NEXT_PUBLIC_RAZORPAY_KEY_SECRET) ??
+    normalizeEnv(process.env.RAZORPAY_LIVE_KEY_SECRET) ??
+    normalizeEnv(process.env.RAZORPAY_TEST_KEY_SECRET);
   if (!keyId || !keySecret) {
     throw new Error("Razorpay credentials are not configured.");
   }
@@ -35,11 +41,18 @@ export function verifyPaymentSignature(params: {
   paymentId: string;
   signature: string;
 }): boolean {
-  if (!normalizeEnv(process.env.RAZORPAY_KEY_SECRET) && !normalizeEnv(process.env.NEXT_PUBLIC_RAZORPAY_KEY_SECRET)) return false;
+  if (!normalizeEnv(process.env.RAZORPAY_KEY_SECRET) &&
+    !normalizeEnv(process.env.NEXT_PUBLIC_RAZORPAY_KEY_SECRET) &&
+    !normalizeEnv(process.env.RAZORPAY_LIVE_KEY_SECRET) &&
+    !normalizeEnv(process.env.RAZORPAY_TEST_KEY_SECRET)) return false;
   const expected = crypto
     .createHmac(
       "sha256",
-      normalizeEnv(process.env.RAZORPAY_KEY_SECRET) ?? normalizeEnv(process.env.NEXT_PUBLIC_RAZORPAY_KEY_SECRET) ?? ""
+      normalizeEnv(process.env.RAZORPAY_KEY_SECRET) ??
+        normalizeEnv(process.env.NEXT_PUBLIC_RAZORPAY_KEY_SECRET) ??
+        normalizeEnv(process.env.RAZORPAY_LIVE_KEY_SECRET) ??
+        normalizeEnv(process.env.RAZORPAY_TEST_KEY_SECRET) ??
+        ""
     )
     .update(`${params.orderId}|${params.paymentId}`)
     .digest("hex");
