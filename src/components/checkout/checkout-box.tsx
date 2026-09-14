@@ -73,10 +73,18 @@ export function CheckoutBox({
   const [showCoupon, setShowCoupon] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [gatewayReady, setGatewayReady] = useState(
+    () => typeof window !== "undefined" && typeof window.Razorpay === "function"
+  );
 
   async function startCheckout() {
     setError(null);
     setLoading(true);
+    if (typeof window === "undefined" || typeof window.Razorpay !== "function") {
+      setError("Payment gateway is not ready yet. Please try again in a moment.");
+      setLoading(false);
+      return;
+    }
     try {
       const res = await fetch("/api/checkout", {
         method: "POST",
@@ -86,10 +94,17 @@ export function CheckoutBox({
           couponCode: couponCode || undefined,
         }),
       });
-      const data = await res.json();
+      const bodyText = await res.text();
+      let parsed: unknown = null;
+      try {
+        parsed = bodyText ? JSON.parse(bodyText) : null;
+      } catch {
+        parsed = null;
+      }
+      const data = parsed && typeof parsed === "object" && parsed !== null ? (parsed as Record<string, unknown>) : { error: bodyText };
 
       if (!res.ok) {
-        setError(data.error ?? "Something went wrong.");
+        setError((data.error && typeof data.error === "string" ? data.error : "Something went wrong.") as string);
         setLoading(false);
         return;
       }
@@ -137,7 +152,12 @@ export function CheckoutBox({
 
   return (
     <div className="border border-ink-300 bg-ink-100 p-6">
-      <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
+      <Script
+        src="https://checkout.razorpay.com/v1/checkout.js"
+        strategy="afterInteractive"
+        onError={() => setError("Could not load payment gateway. Please refresh and try again.")}
+        onLoad={() => setGatewayReady(true)}
+      />
 
       <div className="font-display text-3xl font-bold text-ink-900">
         {formatPrice(program.price, program.currency)}
@@ -154,9 +174,16 @@ export function CheckoutBox({
         </>
       ) : isSignedIn ? (
         <>
-          <Button className="mt-4 w-full" size="lg" onClick={startCheckout} loading={loading}>
-            Get Instant Access
+          <Button
+            className="mt-4 w-full"
+            size="lg"
+            onClick={startCheckout}
+            disabled={loading || !gatewayReady}
+            loading={loading || (!gatewayReady && isSignedIn)}
+          >
+            {loading ? "Processing..." : !gatewayReady ? "Preparing checkout..." : "Get Instant Access"}
           </Button>
+          {!gatewayReady ? <p className="mt-2 text-xs text-ink-500">Loading payment gateway...</p> : null}
 
           {showCoupon ? (
             <div className="mt-3 flex gap-2">
