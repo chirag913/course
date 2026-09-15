@@ -42,12 +42,14 @@ function errorRedirect(reason: string) {
 
 async function fetchShopName(shopDomain: string, accessToken: string): Promise<string> {
   try {
-    const res = await fetch(`https://${shopDomain}/admin/api/${SHOPIFY_API_VERSION}/shop.json`, {
-      headers: { "X-Shopify-Access-Token": accessToken },
+    const res = await fetch(`https://${shopDomain}/admin/api/${SHOPIFY_API_VERSION}/graphql.json`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Shopify-Access-Token": accessToken },
+      body: JSON.stringify({ query: "query { shop { name } }" }),
     });
     if (!res.ok) return shopDomain;
-    const body = (await res.json()) as { shop?: { name?: string } };
-    return body.shop?.name || shopDomain;
+    const body = (await res.json()) as { data?: { shop?: { name?: string } } };
+    return body.data?.shop?.name || shopDomain;
   } catch {
     return shopDomain;
   }

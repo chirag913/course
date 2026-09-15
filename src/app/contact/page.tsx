@@ -15,6 +15,7 @@ const SUPPORT_TOPICS = [
   "Refund requests",
   "Account issues",
   "Technical problems with video or downloads",
+  "Shopify connection or data-deletion requests",
 ];
 
 export default function ContactPage() {

@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   description: "Terms and conditions for purchasing and accessing courses on " + siteConfig.platformName,
 };
 
-const LAST_UPDATED = "22 August 2026";
+const LAST_UPDATED = "16 September 2026";
 
 export default function TermsPage() {
   return (
@@ -169,7 +169,16 @@ export default function TermsPage() {
         </p>
       </LegalSection>
 
-      <LegalSection number="19" title="Governing Law & Jurisdiction">
+      <LegalSection number="19" title="Connected Business Accounts">
+        <p>
+          Mentorship features may let you authorize read-only access to a business account such as
+          Shopify. You may only connect a store you are authorized to manage. We use the granted
+          access solely to provide the requested mentorship analysis, and you may disconnect the
+          account at any time.
+        </p>
+      </LegalSection>
+
+      <LegalSection number="20" title="Governing Law & Jurisdiction">
         <p>
           These Terms are governed by the laws of India. Any disputes arising from these Terms or
           your use of the Platform shall be subject to the exclusive jurisdiction of the courts of

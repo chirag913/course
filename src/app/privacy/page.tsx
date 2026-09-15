@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   description: "How " + siteConfig.platformName + " collects, uses, and protects your data.",
 };
 
-const LAST_UPDATED = "22 August 2026";
+const LAST_UPDATED = "16 September 2026";
 
 export default function PrivacyPage() {
   return (
@@ -40,6 +40,13 @@ export default function PrivacyPage() {
             <strong>Learning progress</strong> — which lessons you&apos;ve completed and your
             approximate position in a lesson&apos;s video, so you can resume where you left off
           </li>
+          <li>
+            <strong>Connected Shopify store data</strong> — only when a mentorship student
+            chooses to connect a store. We import product details and business-order metrics such
+            as item, quantity, amount, status, and date to provide mentorship analysis. We do not
+            intentionally collect or store Shopify customer names, email addresses, phone numbers,
+            shipping addresses, or payment details.
+          </li>
         </ul>
         <p>
           We do not currently collect a phone number, physical address, or any government ID.
@@ -56,6 +63,7 @@ export default function PrivacyPage() {
           <li>Verify your payment and grant you access to the course(s) you purchased</li>
           <li>Let you track and resume your learning progress</li>
           <li>Respond to support requests</li>
+          <li>Provide the Shopify connection and business-analysis features a mentorship student requests</li>
           <li>Meet our legal and accounting obligations</li>
         </ul>
       </LegalSection>
@@ -86,6 +94,10 @@ export default function PrivacyPage() {
             <strong>YouTube</strong> — course videos are hosted as unlisted YouTube videos and
             embedded in the course player; viewing a video loads an embed from YouTube
           </li>
+          <li>
+            <strong>Shopify</strong> — when a mentorship student authorizes a connection, Shopify
+            provides the read-only store data needed for the requested analysis
+          </li>
         </ul>
         <p>Each provider only receives the information necessary to perform its function.</p>
       </LegalSection>
@@ -104,6 +116,11 @@ export default function PrivacyPage() {
           We retain your account, enrollment, and order information for as long as your account is
           active, and as needed to meet legal, accounting, and dispute-resolution requirements
           after that.
+        </p>
+        <p>
+          Shopify connection credentials and Shopify-derived data are removed when Shopify sends a
+          shop-deletion request. A connected merchant can also request deletion through the contact
+          address below.
         </p>
       </LegalSection>
 
