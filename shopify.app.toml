@@ -1,0 +1,22 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "ca0ed15950e58eac68a114ae2ac6d3ab"
+name = "Chirag Course Connect"
+application_url = "https://learn.chiragsharma.co"
+embedded = false
+
+[webhooks]
+api_version = "2026-07"
+
+[[webhooks.subscriptions]]
+compliance_topics = [ "customers/data_request", "customers/redact", "shop/redact" ]
+uri = "https://learn.chiragsharma.co/api/webhooks/shopify/compliance"
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "read_products,read_orders"
+optional_scopes = [ ]
+use_legacy_install_flow = false
+
+[auth]
+redirect_urls = [ "https://learn.chiragsharma.co/api/connections/shopify/callback" ]
