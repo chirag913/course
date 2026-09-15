@@ -19,6 +19,7 @@ type Variant = { id: string; title: string | null; sku: string | null; price: st
 type LineItem = { id: string; product: { id: string } | null; variant: { id: string } | null; title: string; quantity: number; originalUnitPriceSet: Money; totalDiscountSet: Money };
 type Order = { id: string; legacyResourceId: string | null; createdAt: string | null; updatedAt: string | null; displayFinancialStatus: string | null; displayFulfillmentStatus: string | null; currencyCode: string; subtotalPriceSet: Money; totalDiscountsSet: Money; totalShippingPriceSet: Money; totalTaxSet: Money; totalPriceSet: Money; cancelledAt: string | null; lineItems: { nodes: LineItem[] } };
 type PageInfo = { hasNextPage: boolean; endCursor: string | null };
+type PaginatedResponse<T> = { nodes: T[]; pageInfo: PageInfo };
 
 async function graphql<T>(shopDomain: string, token: string, query: string, variables: Record<string, unknown>): Promise<T> {
   const response = await fetch(`https://${shopDomain}/admin/api/${SHOPIFY_API_VERSION}/graphql.json`, {
@@ -41,10 +42,12 @@ async function allPages<T>(shopDomain: string, token: string, query: string, roo
   const records: T[] = [];
   let after: string | null = null;
   for (let page = 0; page < MAX_PAGES; page += 1) {
-    const data = await graphql<Record<typeof root, { nodes: T[]; pageInfo: PageInfo }>>(shopDomain, token, query, { first: PAGE_LIMIT, after, query: filter });
-    records.push(...data[root].nodes);
-    if (!data[root].pageInfo.hasNextPage || !data[root].pageInfo.endCursor) break;
-    after = data[root].pageInfo.endCursor;
+    const data: Partial<Record<"products" | "orders", PaginatedResponse<T>>> = await graphql<Partial<Record<"products" | "orders", PaginatedResponse<T>>>>(shopDomain, token, query, { first: PAGE_LIMIT, after, query: filter });
+    const result = data[root];
+    if (!result) throw new ShopifyIngestError("Shopify returned an incomplete paginated response.", "api");
+    records.push(...result.nodes);
+    if (!result.pageInfo.hasNextPage || !result.pageInfo.endCursor) break;
+    after = result.pageInfo.endCursor;
   }
   return records;
 }
