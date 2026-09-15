@@ -14,6 +14,7 @@ export interface ImportShippingCsvParams {
   csvText: string;
   orderColumn: string;
   statusColumn: string;
+  source?: "shiprocket_csv" | "manual_csv";
 }
 
 export interface ImportShippingCsvResult {
@@ -66,6 +67,7 @@ export async function importShippingCsv(
       file_hash: fileHash,
       order_column: params.orderColumn,
       status_column: params.statusColumn,
+      source: params.source ?? "manual_csv",
       status: "processing",
       row_count: rows.length,
     })

@@ -124,6 +124,13 @@ export default async function MentorshipDashboardPage({ params }: Props) {
   const remainingDays = profile ? getRemainingDays(profile) : null;
   const isActive = effectiveStatus === "active";
   const nextPendingPayment = payments.find((p) => p.status !== "paid");
+  const { data: connectionRows } = await supabase
+    .from("mentorship_connections")
+    .select("provider, status")
+    .eq("enrollment_id", enrollment.id)
+    .eq("status", "connected");
+  const connectedProviders = new Set((connectionRows ?? []).map((connection) => connection.provider));
+  const hasAllPrimaryConnections = ["shopify", "meta", "shiprocket"].every((provider) => connectedProviders.has(provider));
 
   // Mentorship content itself is only fetched when access is active — RLS
   // (is_mentorship_access_active) would return empty rows anyway once
@@ -227,6 +234,23 @@ export default async function MentorshipDashboardPage({ params }: Props) {
               Progress
             </Link>
           </div>
+
+          {!hasAllPrimaryConnections && (
+            <section className="mt-6 border border-brand-400/40 bg-brand-400/5 p-5">
+              <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+                <div>
+                  <h2 className="font-display text-lg font-semibold text-ink-900">Get your business data connected</h2>
+                  <p className="mt-1 max-w-2xl text-sm leading-6 text-ink-700">Your mentor can give you much better advice when your store, ad, and fulfillment data are connected.</p>
+                  <div className="mt-4 flex flex-wrap gap-3 text-sm">
+                    {[["Shopify", "shopify"], ["Meta Ads", "meta"], ["Shiprocket", "shiprocket"]].map(([label, provider]) => (
+                      <span key={provider} className={connectedProviders.has(provider) ? "text-success" : "text-ink-600"}>{connectedProviders.has(provider) ? "Connected" : "Not connected"} · {label}</span>
+                    ))}
+                  </div>
+                </div>
+                <Link href={`/dashboard/mentorship/${slug}/connections`}><Button>Finish setup</Button></Link>
+              </div>
+            </section>
+          )}
 
           {/* PRIMARY BUSINESS FOCUS — context above execution, kept compact */}
           {intelligence && (

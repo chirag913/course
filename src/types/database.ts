@@ -321,7 +321,7 @@ export interface ProgramResource {
   updated_at: string;
 }
 
-export type MentorshipConnectionProvider = "shopify" | "meta";
+export type MentorshipConnectionProvider = "shopify" | "meta" | "shiprocket";
 export type MentorshipConnectionStatus = "connected" | "disconnected" | "pending_selection" | "error";
 
 // Metadata only — never holds tokens. See src/lib/connections/tokens.ts for
@@ -359,6 +359,7 @@ export interface MentorshipShopifyProduct {
   created_at: string;
   updated_at: string;
   synced_at: string;
+  source: "shopify_api" | "shopify_csv";
 }
 
 export interface MentorshipShopifyProductVariant {
@@ -375,6 +376,7 @@ export interface MentorshipShopifyProductVariant {
   created_at: string;
   updated_at: string;
   synced_at: string;
+  source: "shopify_api" | "shopify_csv";
 }
 
 export interface MentorshipShopifyOrder {
@@ -396,6 +398,7 @@ export interface MentorshipShopifyOrder {
   created_at: string;
   updated_at: string;
   synced_at: string;
+  source: "shopify_api" | "shopify_csv";
 }
 
 export interface MentorshipShopifyOrderLineItem {
@@ -415,6 +418,7 @@ export interface MentorshipShopifyOrderLineItem {
   created_at: string;
   updated_at: string;
   synced_at: string;
+  source: "shopify_api" | "shopify_csv";
 }
 
 export interface MentorshipMetaAdAccount {
@@ -499,7 +503,7 @@ export interface MentorshipMetaAdInsight {
   synced_at: string;
 }
 
-export type SyncProvider = "shopify" | "meta";
+export type SyncProvider = "shopify" | "meta" | "shiprocket";
 export type SyncType = "initial" | "incremental" | "manual";
 export type SyncRunStatus = "idle" | "running" | "success" | "failed";
 
@@ -602,6 +606,7 @@ export interface MentorshipShippingImport {
   file_hash: string;
   order_column: string;
   status_column: string;
+  source: "shiprocket_api" | "shiprocket_csv" | "manual_csv";
   status: ShippingImportStatus;
   row_count: number;
   matched_count: number;

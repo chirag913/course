@@ -14,7 +14,7 @@ interface UploadResult {
   statusBreakdown: Record<CanonicalShippingStatus, number>;
 }
 
-export function ShippingCsvUploadForm({ enrollmentId }: { enrollmentId: string }) {
+export function ShippingCsvUploadForm({ enrollmentId, source = "manual_csv", label = "Upload Shipping CSV" }: { enrollmentId: string; source?: "shiprocket_csv" | "manual_csv"; label?: string }) {
   const [fileName, setFileName] = useState<string | null>(null);
   const [csvText, setCsvText] = useState<string | null>(null);
   const [headers, setHeaders] = useState<string[]>([]);
@@ -55,7 +55,7 @@ export function ShippingCsvUploadForm({ enrollmentId }: { enrollmentId: string }
     setError(null);
     startTransition(async () => {
       try {
-        const res = await uploadShippingCsv(enrollmentId, { filename: fileName, csvText, orderColumn, statusColumn });
+        const res = await uploadShippingCsv(enrollmentId, { filename: fileName, csvText, orderColumn, statusColumn, source });
         setResult(res);
         setCsvText(null);
         setHeaders([]);
@@ -71,7 +71,7 @@ export function ShippingCsvUploadForm({ enrollmentId }: { enrollmentId: string }
     <div className="space-y-4">
       <div>
         <label className="inline-flex cursor-pointer items-center rounded-md border border-ink-300 px-4 py-2 text-sm font-medium text-ink-800 hover:bg-ink-200">
-          Upload Shipping CSV
+          {label}
           <input type="file" accept=".csv,text/csv" onChange={handleFileChange} className="hidden" />
         </label>
       </div>

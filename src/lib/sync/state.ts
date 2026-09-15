@@ -104,7 +104,7 @@ export async function getLatestSyncs(
     .eq("enrollment_id", enrollmentId)
     .order("created_at", { ascending: false });
 
-  const result: Record<SyncProvider, MentorshipDataSync | null> = { shopify: null, meta: null };
+  const result: Record<SyncProvider, MentorshipDataSync | null> = { shopify: null, meta: null, shiprocket: null };
   for (const row of (data ?? []) as MentorshipDataSync[]) {
     if (!result[row.provider]) result[row.provider] = row;
   }

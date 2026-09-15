@@ -8,10 +8,14 @@ import { requireUser } from "@/lib/auth";
 import { createOAuthState } from "@/lib/connections/state";
 import { buildShopifyAuthorizeUrl, normalizeShopDomain } from "@/lib/connections/shopify";
 import { buildMetaAuthorizeUrl, listMetaAdAccounts } from "@/lib/connections/meta";
-import { deleteConnectionTokens, getConnectionTokens } from "@/lib/connections/tokens";
+import { deleteConnectionTokens, getConnectionTokens, storeConnectionTokens } from "@/lib/connections/tokens";
 import { startSync, completeSync, failSync, getLatestSyncs } from "@/lib/sync/state";
 import { ingestShopifyForConnection, ShopifyIngestError } from "@/lib/sync/shopify-ingest";
 import { ingestMetaForConnection, MetaIngestError } from "@/lib/sync/meta-ingest";
+import { ingestShopifyCsv, ShopifyCsvImportError } from "@/lib/sync/shopify-csv-ingest";
+import { discoverProductsFromShopify } from "@/lib/products/discovery";
+import { authenticateShiprocket, fetchShiprocketShipments, ShiprocketError } from "@/lib/connections/shiprocket";
+import { importShiprocketShipments } from "@/lib/shipping/shiprocket-import";
 import type { MentorshipConnectionProvider } from "@/types/database";
 
 // Every action re-derives ownership from the enrollment row via the
@@ -50,6 +54,19 @@ export async function initiateMetaConnect(enrollmentId: string) {
   await requireOwnEnrollment(enrollmentId);
   const state = await createOAuthState({ enrollmentId, provider: "meta" });
   redirect(buildMetaAuthorizeUrl(state));
+}
+
+export async function connectShiprocket(enrollmentId: string, email: string, password: string) {
+  const { slug } = await requireOwnEnrollment(enrollmentId);
+  if (!email.trim() || !password) throw new Error("Enter your Shiprocket API user email and password.");
+  const token = await authenticateShiprocket(email.trim(), password);
+  const admin = createAdminClient();
+  const { data: existing } = await admin.from("mentorship_connections").select("id").eq("enrollment_id", enrollmentId).eq("provider", "shiprocket").eq("status", "connected").maybeSingle();
+  const connectionId = existing?.id ?? (await admin.from("mentorship_connections").insert({ enrollment_id: enrollmentId, provider: "shiprocket", status: "connected", external_account_id: email.trim(), external_account_name: "Shiprocket" , connected_at: new Date().toISOString() }).select("id").single()).data?.id;
+  if (!connectionId) throw new Error("Unable to save the Shiprocket connection. Please try again.");
+  if (existing) await admin.from("mentorship_connections").update({ external_account_id: email.trim(), external_account_name: "Shiprocket", connected_at: new Date().toISOString(), disconnected_at: null }).eq("id", connectionId);
+  await storeConnectionTokens({ connectionId, accessToken: token, credentials: { email: email.trim(), password } });
+  revalidatePath(`/dashboard/mentorship/${slug}/connections`);
 }
 
 export async function disconnectConnection(enrollmentId: string, connectionId: string) {
@@ -151,7 +168,7 @@ export async function syncProvider(enrollmentId: string, provider: MentorshipCon
     .maybeSingle();
 
   if (!connection) {
-    throw new Error(`Connect ${provider === "shopify" ? "Shopify" : "Meta Ads"} first before syncing.`);
+    throw new Error(`Connect ${provider === "shopify" ? "Shopify" : provider === "meta" ? "Meta Ads" : "Shiprocket"} first before syncing.`);
   }
 
   const admin = createAdminClient();
@@ -178,7 +195,7 @@ export async function syncProvider(enrollmentId: string, provider: MentorshipCon
         lineItemsImported: result.lineItemsImported,
         ordersWindowNote: result.ordersWindowNote,
       });
-    } else {
+    } else if (provider === "meta") {
       const result = await ingestMetaForConnection(enrollmentId, connection, { since: previousSuccessAt });
       await completeSync(syncId, result.recordsProcessed, {
         campaignsImported: result.campaignsImported,
@@ -187,10 +204,20 @@ export async function syncProvider(enrollmentId: string, provider: MentorshipCon
         insightsImported: result.insightsImported,
         windowDays: result.windowDays,
       });
+    } else {
+      const tokens = await getConnectionTokens(connection.id);
+      const email = tokens?.credentials?.email;
+      const password = tokens?.credentials?.password;
+      if (!email || !password) throw new ShiprocketError("Shiprocket authentication failed. Reconnect your Shiprocket API user.");
+      const token = await authenticateShiprocket(email, password);
+      await storeConnectionTokens({ connectionId: connection.id, accessToken: token, credentials: { email, password } });
+      const shipments = await fetchShiprocketShipments(token);
+      const result = await importShiprocketShipments(admin, enrollmentId, shipments);
+      await completeSync(syncId, result.rowCount, { ...result });
     }
   } catch (e) {
     const message =
-      e instanceof ShopifyIngestError || e instanceof MetaIngestError
+      e instanceof ShopifyIngestError || e instanceof MetaIngestError || e instanceof ShiprocketError
         ? e.message
         : "The sync failed unexpectedly. Please try again.";
     await failSync(syncId, message);
@@ -207,6 +234,34 @@ export async function syncShopify(enrollmentId: string) {
 
 export async function syncMeta(enrollmentId: string) {
   return syncProvider(enrollmentId, "meta");
+}
+
+export async function syncAllProviders(enrollmentId: string): Promise<string[]> {
+  await requireOwnEnrollment(enrollmentId);
+  const supabase = await createClient();
+  const { data: rows } = await supabase.from("mentorship_connections").select("provider").eq("enrollment_id", enrollmentId).eq("status", "connected");
+  const providers = (rows ?? []).map((row) => row.provider as MentorshipConnectionProvider);
+  const results: string[] = [];
+  for (const provider of providers) {
+    try { await syncProvider(enrollmentId, provider); results.push(`${provider === "meta" ? "Meta" : provider === "shiprocket" ? "Shiprocket" : "Shopify"} synced`); }
+    catch { results.push(`${provider === "meta" ? "Meta" : provider === "shiprocket" ? "Shiprocket" : "Shopify"} needs attention`); }
+  }
+  return results.length ? results : ["Connect a data source first"];
+}
+
+export async function importShopifyOrdersCsv(enrollmentId: string, filename: string, csvText: string) {
+  const { slug } = await requireOwnEnrollment(enrollmentId);
+  if (!filename.toLowerCase().endsWith(".csv")) throw new Error("Choose a Shopify orders CSV file.");
+  try {
+    const supabase = await createClient();
+    const result = await ingestShopifyCsv(supabase, enrollmentId, csvText);
+    await discoverProductsFromShopify(supabase, enrollmentId);
+    revalidatePath(`/dashboard/mentorship/${slug}/connections`);
+    revalidatePath(`/dashboard/mentorship/${slug}/products`);
+    return result;
+  } catch (cause) {
+    throw new Error(cause instanceof ShopifyCsvImportError ? cause.message : "Could not import this Shopify CSV.");
+  }
 }
 
 export async function getSyncStatus(enrollmentId: string) {

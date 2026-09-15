@@ -13,6 +13,7 @@ interface TokenRow {
   refresh_token: string | null;
   expires_at: string | null;
   scope: string | null;
+  credentials: Record<string, string> | null;
 }
 
 export async function storeConnectionTokens(params: {
@@ -21,6 +22,7 @@ export async function storeConnectionTokens(params: {
   refreshToken?: string | null;
   expiresAt?: Date | null;
   scope?: string | null;
+  credentials?: Record<string, string> | null;
 }): Promise<void> {
   const admin = createAdminClient();
   const { error } = await admin.from("mentorship_connection_tokens").upsert(
@@ -30,6 +32,7 @@ export async function storeConnectionTokens(params: {
       refresh_token: params.refreshToken ?? null,
       expires_at: params.expiresAt ? params.expiresAt.toISOString() : null,
       scope: params.scope ?? null,
+      credentials: params.credentials ?? null,
     },
     { onConflict: "connection_id" }
   );
@@ -40,7 +43,7 @@ export async function getConnectionTokens(connectionId: string): Promise<TokenRo
   const admin = createAdminClient();
   const { data } = await admin
     .from("mentorship_connection_tokens")
-    .select("access_token, refresh_token, expires_at, scope")
+    .select("access_token, refresh_token, expires_at, scope, credentials")
     .eq("connection_id", connectionId)
     .maybeSingle();
   return data ?? null;

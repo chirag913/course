@@ -31,7 +31,7 @@ function revalidateShipping(slug: string) {
 
 export async function uploadShippingCsv(
   enrollmentId: string,
-  params: { filename: string; csvText: string; orderColumn: string; statusColumn: string }
+  params: { filename: string; csvText: string; orderColumn: string; statusColumn: string; source?: "shiprocket_csv" | "manual_csv" }
 ) {
   const { slug } = await requireOwnEnrollment(enrollmentId);
   const supabase = await createClient();
