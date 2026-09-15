@@ -8,7 +8,7 @@ import { requireUser } from "@/lib/auth";
 import { createOAuthState } from "@/lib/connections/state";
 import { buildShopifyAuthorizeUrl, normalizeShopDomain } from "@/lib/connections/shopify";
 import { buildMetaAuthorizeUrl, listMetaAdAccounts } from "@/lib/connections/meta";
-import { deleteConnectionTokens, getConnectionTokens, storeConnectionTokens } from "@/lib/connections/tokens";
+import { deleteConnectionTokens, getConnectionCredentials, getConnectionTokens, storeConnectionTokens } from "@/lib/connections/tokens";
 import { startSync, completeSync, failSync, getLatestSyncs } from "@/lib/sync/state";
 import { ingestShopifyForConnection, ShopifyIngestError } from "@/lib/sync/shopify-ingest";
 import { ingestMetaForConnection, MetaIngestError } from "@/lib/sync/meta-ingest";
@@ -205,9 +205,9 @@ export async function syncProvider(enrollmentId: string, provider: MentorshipCon
         windowDays: result.windowDays,
       });
     } else {
-      const tokens = await getConnectionTokens(connection.id);
-      const email = tokens?.credentials?.email;
-      const password = tokens?.credentials?.password;
+      const credentials = await getConnectionCredentials(connection.id);
+      const email = credentials?.email;
+      const password = credentials?.password;
       if (!email || !password) throw new ShiprocketError("Shiprocket authentication failed. Reconnect your Shiprocket API user.");
       const token = await authenticateShiprocket(email, password);
       await storeConnectionTokens({ connectionId: connection.id, accessToken: token, credentials: { email, password } });
