@@ -5,7 +5,6 @@ import { createClient } from "@/lib/supabase/server";
 import { Badge } from "@/components/ui/badge";
 import { formatDate } from "@/lib/utils";
 import { ArrowLeft, Megaphone, PackageCheck, ShoppingBag, Truck } from "lucide-react";
-import { ConnectShopifyForm } from "@/components/connections/connect-shopify-form";
 import { ConnectMetaButton } from "@/components/connections/connect-meta-button";
 import { DisconnectButton } from "@/components/connections/disconnect-button";
 import { SyncNowButton } from "@/components/connections/sync-now-button";
@@ -82,8 +81,8 @@ export default async function ConnectionsPage({ params, searchParams }: Props) {
     supabase.from("mentorship_shopify_products").select("id", { count: "exact", head: true }).eq("enrollment_id", enrollment.id),
     supabase.from("mentorship_product_shopify_links").select("id", { count: "exact", head: true }).eq("enrollment_id", enrollment.id),
   ]);
-  const connectedCount = [shopify, meta, shiprocket].filter((connection) => connection?.status === "connected").length;
-  const lastUpdated = [shopify, meta, shiprocket]
+  const connectedCount = [meta, shiprocket].filter((connection) => connection?.status === "connected").length;
+  const lastUpdated = [meta, shiprocket]
     .map((connection) => connection?.last_synced_at)
     .filter((date): date is string => Boolean(date))
     .sort()
@@ -102,11 +101,11 @@ export default async function ConnectionsPage({ params, searchParams }: Props) {
       <div className="flex flex-col gap-5 border-b border-ink-300 pb-6 md:flex-row md:items-end md:justify-between">
         <div>
           <h1 className="font-display text-3xl font-bold tracking-tight text-ink-900">Connect your store &amp; business data</h1>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-ink-600">Connect your accounts so your mentor can see your real business performance and help you make better decisions.</p>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-ink-600">Upload your Shopify orders CSV, then connect the business accounts you use so your mentor can see the data that matters.</p>
         </div>
         <div className="min-w-56 rounded-md border border-ink-300 bg-ink-100/60 px-4 py-3">
-          <div className="flex items-center justify-between text-sm"><span className="font-semibold text-ink-900">Your data connections</span><span className="text-ink-600">{connectedCount} of 3 connected</span></div>
-          <div className="mt-3 h-2 overflow-hidden rounded-full bg-ink-300"><div className="h-full rounded-full bg-success" style={{ width: `${(connectedCount / 3) * 100}%` }} /></div>
+          <div className="flex items-center justify-between text-sm"><span className="font-semibold text-ink-900">Your live data connections</span><span className="text-ink-600">{connectedCount} of 2 connected</span></div>
+          <div className="mt-3 h-2 overflow-hidden rounded-full bg-ink-300"><div className="h-full rounded-full bg-success" style={{ width: `${(connectedCount / 2) * 100}%` }} /></div>
           <div className="mt-3 flex items-center justify-between gap-3"><span className="text-xs text-ink-600">{lastUpdated ? `Updated ${formatDate(lastUpdated)}` : "No data synced yet"}</span><SyncAllButton enrollmentId={enrollment.id} /></div>
         </div>
       </div>
@@ -123,9 +122,9 @@ export default async function ConnectionsPage({ params, searchParams }: Props) {
           connection={shopify}
           sync={latestSyncByProvider.get("shopify")}
           enrollmentId={enrollment.id}
-          connectForm={<ConnectShopifyForm enrollmentId={enrollment.id} />}
+          connectForm={<ShopifyCsvPrompt />}
           icon={<ShoppingBag className="h-5 w-5" />}
-          description="Products, orders, revenue, units sold, selling prices, and order statuses."
+          description="Import your Shopify orders with a CSV export. Your mentor can use the imported orders, revenue, products, and order statuses."
           dataLabel={orderCount ? `${orderCount} orders imported` : "No orders imported yet"}
         />
         <ConnectionCard
@@ -152,9 +151,9 @@ export default async function ConnectionsPage({ params, searchParams }: Props) {
 
       <section className="mt-6 border border-ink-300 p-5">
         <div className="flex items-center gap-2"><PackageCheck className="h-5 w-5 text-brand-300" /><h2 className="font-display text-lg font-semibold text-ink-900">Import data your way</h2></div>
-        <p className="mt-1 text-sm text-ink-600">CSV imports are a first-class option when an API connection is not right for your business.</p>
+        <p className="mt-1 text-sm text-ink-600">Shopify data is imported by CSV. Export your orders from Shopify Admin, then upload the downloaded file below.</p>
         <div className="mt-5 grid gap-4 lg:grid-cols-3">
-          <ImportOption title="Shopify orders CSV" description="Export your orders from Shopify and upload the standard orders CSV." ><ShopifyCsvUploadForm enrollmentId={enrollment.id} /></ImportOption>
+          <ImportOption id="shopify-csv-import" title="Shopify orders CSV" description="In Shopify Admin, open Orders, choose Export, download the orders CSV, then upload it here."><ShopifyCsvUploadForm enrollmentId={enrollment.id} /></ImportOption>
           <ImportOption title="Shiprocket CSV" description="Upload a Shiprocket export. Confirm the detected order and status columns before import."><ShippingCsvUploadForm enrollmentId={enrollment.id} source="shiprocket_csv" label="Upload Shiprocket CSV" /></ImportOption>
           <ImportOption title="Generic shipping CSV" description="Use a shipping or fulfillment report from any provider. Unmatched rows stay in review."><ShippingCsvUploadForm enrollmentId={enrollment.id} label="Upload shipping CSV" /></ImportOption>
         </div>
@@ -170,7 +169,7 @@ export default async function ConnectionsPage({ params, searchParams }: Props) {
       <section className="mt-6 border border-ink-300 p-5">
         <h2 className="font-display text-lg font-semibold text-ink-900">Data status</h2>
         <div className="mt-4 grid gap-3 sm:grid-cols-3 text-sm">
-          <DataStatus label="Shopify" connected={shopify?.status === "connected"} detail={orderCount ? `${orderCount} orders` : "No orders yet"} />
+          <DataStatus label="Shopify" connected={Boolean(orderCount)} connectedLabel="Imported" disconnectedLabel="CSV needed" detail={orderCount ? `${orderCount} orders imported` : "Export orders from Shopify and upload the CSV"} />
           <DataStatus label="Meta Ads" connected={meta?.status === "connected"} detail={adCount ? `${adCount} ads` : "No ad data yet"} />
           <DataStatus label="Fulfillment" connected={shiprocket?.status === "connected" || Boolean(shippingCount)} detail={shippingCount ? `${shippingCount} records` : "Not connected"} />
         </div>
@@ -254,10 +253,20 @@ function ConnectionCard({
   );
 }
 
-function ImportOption({ title, description, children }: { title: string; description: string; children: React.ReactNode }) {
-  return <div className="border border-ink-300 p-4"><h3 className="font-medium text-ink-900">{title}</h3><p className="mt-1 min-h-10 text-sm leading-5 text-ink-600">{description}</p><div className="mt-4">{children}</div></div>;
+function ShopifyCsvPrompt() {
+  return (
+    <div className="mt-auto rounded-md border border-ink-300 bg-ink-100/60 p-3 text-sm text-ink-700">
+      <p className="font-medium text-ink-900">Import with a Shopify orders CSV</p>
+      <p className="mt-1 text-xs leading-5 text-ink-600">Export orders from Shopify Admin and upload the CSV below. A Shopify login connection is not required.</p>
+      <a href="#shopify-csv-import" className="mt-3 inline-flex text-sm font-semibold text-brand-300 hover:text-brand-400">Upload Shopify CSV</a>
+    </div>
+  );
 }
 
-function DataStatus({ label, connected, detail }: { label: string; connected: boolean; detail: string }) {
-  return <div className="flex items-center justify-between border border-ink-300 px-4 py-3"><div><p className="font-medium text-ink-900">{label}</p><p className="mt-1 text-xs text-ink-600">{detail}</p></div><Badge tone={connected ? "success" : "neutral"}>{connected ? "Connected" : "Not connected"}</Badge></div>;
+function ImportOption({ id, title, description, children }: { id?: string; title: string; description: string; children: React.ReactNode }) {
+  return <div id={id} className="border border-ink-300 p-4"><h3 className="font-medium text-ink-900">{title}</h3><p className="mt-1 min-h-10 text-sm leading-5 text-ink-600">{description}</p><div className="mt-4">{children}</div></div>;
+}
+
+function DataStatus({ label, connected, detail, connectedLabel = "Connected", disconnectedLabel = "Not connected" }: { label: string; connected: boolean; detail: string; connectedLabel?: string; disconnectedLabel?: string }) {
+  return <div className="flex items-center justify-between border border-ink-300 px-4 py-3"><div><p className="font-medium text-ink-900">{label}</p><p className="mt-1 text-xs text-ink-600">{detail}</p></div><Badge tone={connected ? "success" : "neutral"}>{connected ? connectedLabel : disconnectedLabel}</Badge></div>;
 }
